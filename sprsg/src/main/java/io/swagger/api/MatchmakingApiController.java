@@ -1,0 +1,83 @@
+package io.swagger.api;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+
+import io.swagger.model.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.swagger.annotations.ApiParam;
+
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2020-01-10T13:05:51.960Z[GMT]")
+@Controller
+public class MatchmakingApiController implements MatchmakingApi {
+
+	private static final Logger log = LoggerFactory.getLogger(MatchmakingApiController.class);
+
+	private final ObjectMapper objectMapper;
+
+	private final HttpServletRequest request;
+
+	@org.springframework.beans.factory.annotation.Autowired
+	public MatchmakingApiController(ObjectMapper objectMapper, HttpServletRequest request) {
+		this.objectMapper = objectMapper;
+		this.request = request;
+	}
+
+	public ResponseEntity<List<UserPairAssignment>> matchmakingPost(
+			@ApiParam(value = "The body is a JSON structure having the following parts (a) global user score (b) pairwise user scores and (c) user-to-user collaboration intentions. The output of the computation is a user pair assignment matrix.", required = true) @Valid @RequestBody Body body) {
+		String accept = request.getHeader("Accept");
+		if (accept != null && accept.contains("application/json")) {
+			ArrayList<UserPairAssignment> result = new ArrayList<UserPairAssignment>();
+
+			/* ------------------------------------------ */
+
+			ArrayList<UserScore> scores_given = new ArrayList<UserScore>();
+			for (UserScore us : body.getUserGlobalScores())
+				scores_given.add(us);
+
+			/* ------------------------------------------ */
+
+			ArrayList<UserPairwiseScore> pairwise_score = new ArrayList<UserPairwiseScore>();
+			for (UserPairwiseScore ups : body.getUserPairwiseScore())
+				pairwise_score.add(ups);
+
+			/* ------------------------------------------ */
+
+			ArrayList<UserCollaborationIntentions> collaboration_intentions = new ArrayList<UserCollaborationIntentions>();
+			for (UserCollaborationIntentions uci : body.getUserCollaborationIntentions())
+				collaboration_intentions.add(uci);
+
+			/* ------------------------------------------ */
+
+			MatchmakingAlgorithmImplementation ma = new MatchmakingAlgorithmImplementation();
+
+			result = ma.final_pair(body.getUserGlobalScores(), body.getUserPairwiseScore(),
+					body.getUserCollaborationIntentions());
+
+//			for (int i = 0; i < users_id.size(); i += 2) {
+//				UserPairAssignment pairToAdd = new UserPairAssignment();
+//				pairToAdd.setUser1(users_id.get(i));
+//				if (i < users_id.size() - 1)
+//					pairToAdd.setUser2(users_id.get(i + 1));
+//				else
+//					pairToAdd.setUser2("");
+//				result.add(pairToAdd);
+//			}
+			return new ResponseEntity<List<UserPairAssignment>>(result, HttpStatus.OK);
+		}
+
+		return new ResponseEntity<List<UserPairAssignment>>(HttpStatus.NOT_IMPLEMENTED);
+	}
+}

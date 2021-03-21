@@ -1,0 +1,466 @@
+package io.swagger.api;
+
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
+
+import io.swagger.model.UserCollaborationIntentions;
+import io.swagger.model.UserCollaborationSpec;
+import io.swagger.model.UserCollaborationSpec.IntentionEnum;
+import io.swagger.model.UserPairAssignment;
+import io.swagger.model.UserPairwiseScore;
+import io.swagger.model.UserScore;
+import io.swagger.model.UtilityUser;
+import lpsolve.LpSolve;
+import lpsolve.LpSolveException;
+import me.tongfei.progressbar.ProgressBar;
+import scpsolver.constraints.LinearBiggerThanEqualsConstraint;
+import scpsolver.constraints.LinearSmallerThanEqualsConstraint;
+import scpsolver.lpsolver.LinearProgramSolver;
+import scpsolver.lpsolver.SolverFactory;
+import scpsolver.problems.LPSolution;
+import scpsolver.problems.LPWizard;
+import scpsolver.problems.LinearProgram;
+import scpsolver.problems.MathematicalProgram;
+
+public class MatchmakingAlgorithmImplementation {
+
+	boolean played_again = false;
+	String intentions;
+	float weight = 0;
+
+	public ArrayList<UserPairAssignment> final_pair(List<UserScore> list, List<UserPairwiseScore> list2,
+			List<UserCollaborationIntentions> list3) {
+		
+
+
+		ArrayList<UtilityUser> global_utility = new ArrayList<UtilityUser>();
+		ArrayList<UtilityUser> utility_per_user = new ArrayList<UtilityUser>();
+		ArrayList<UserPairAssignment> temp_res = new ArrayList<UserPairAssignment>();
+		ArrayList<UtilityUser> tettt = new ArrayList<UtilityUser>();
+		UserScore us = new UserScore();
+		UtilityUser utility_user;
+
+		System.out.println("------------------------------------");
+		System.out.println("Main");
+		System.out.println("------------------------------------");
+
+		UserPairwiseScore ups = null;
+		// Iterate through the UPS list
+
+		for (int a = 0; a < list2.size(); a++) {
+			ups = list2.get(a);
+			UserPairwiseScore ups_2 = null;
+			// Iterate through the UPS list again so we can get the nested users
+			for (int b = 0; b < list2.size(); b++) {
+				utility_user = new UtilityUser();
+				ups_2 = list2.get(b);
+				us = ups_2.getScoresGiven().get(0);
+
+				// Check if the Outter user is the same as the nested one
+				if (ups.getGradingUser().equals(ups_2.getGradingUser())) {
+//					 System.out.println("The users match:");
+//					 System.out.println(" ups.getGradingUser(): " + ups.getGradingUser());
+//					 System.out.println(" ups_2.getGradingUser(): " + ups_2.getGradingUser());
+
+					// If the both scores are 0 the players haven't played again
+					if (us.getScore().getColaboration() != 0 && us.getScore().getQuality() != 0) {
+
+						played_again = true;
+						/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
+						intentions = get_intentions((ArrayList<UserCollaborationIntentions>) list3,
+								ups.getGradingUser(), us.getUserId());
+						/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
+						// System.out.println("(alt)Intentions for the pair: " + intentions);
+
+					} else {
+
+						played_again = false;
+						/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
+						intentions = get_intentions((ArrayList<UserCollaborationIntentions>) list3,
+								ups.getGradingUser(), us.getUserId());
+						/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
+						// System.out.println("Intentions for the pair: " + intentions);
+
+					}
+
+					/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
+					// Call the Weight for the pair function
+					weight = weight(ups, ups_2, played_again, intentions);
+					// System.out.println("Weight for the pair: " + weight);
+					/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
+
+					// Get the 2 users (outter and nested) and add them to the Utility User object
+					utility_user.setUser_i(us.getUserId());
+					utility_user.setUser_j(ups.getGradingUser());
+					utility_user.setWeight(weight);
+					utility_per_user.add(utility_user);
+
+					continue;
+
+				} else
+					continue;
+
+			}
+//		    progressPercentage(a, list2.size());
+//		    try {
+//		        Thread.sleep(500);
+//		    } catch (Exception e) {
+//		    }
+
+		}
+
+/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
+		// call utility per user, to get the utility of each player
+		// with all others he has played with
+		global_utility = utility_per_user_calculator(utility_per_user);
+/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
+
+/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
+		// global utility function
+		System.out.println(global_utility.size());
+		temp_res = global_utilityFunc(global_utility);
+		// System.out.println(temp_res);
+
+		// global utility function
+		tettt = global_utilityFunc2(global_utility);
+		try {
+//			maximize_lp(tettt);
+		} catch (Exception e) {
+			System.out.println("Something went wrong: " + e);
+		}
+/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
+
+//		System.out.println("Final pairs(?): " + temp_res);
+		// it will return the results from tettt, not temp_res
+		return temp_res;
+	}
+
+	private void maximize_lp(ArrayList<UtilityUser> last_users) {
+
+		/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
+
+		UtilityUser uu = new UtilityUser();
+		UtilityUser uu_2 = null;
+		int temp = 0;
+		LPWizard lp = new LPWizard();
+		for (int f = 0; f < last_users.size(); f++) {
+			uu = last_users.get(f);
+
+			for (int g = f; g < last_users.size(); g++) {
+				uu_2 = last_users.get(g);
+
+				if (uu.getUser_i().equals(uu_2.getUser_j())) {
+
+					// add as objects in the maximize problem, each user with his weight
+					lp.plus(uu.getUser_i(), uu.getWeight()).plus(uu_2.getUser_i(), uu_2.getWeight());
+					// lp.plus(uu.getUser_j(), uu_2.getWeight());
+
+					// add the constraints necessary
+					// for each pair:
+
+					lp.addConstraint("c" + temp, 1, "<=").plus(uu.getUser_i(), 1.0).plus(uu_2.getUser_i(), 1.0)
+							.setAllVariablesInteger();
+					lp.addConstraint("c" + (temp + 1), 1, ">=").plus(uu.getUser_i(), 1.0).setAllVariablesInteger();
+					lp.addConstraint("c" + (temp + 2), 1, ">=").plus(uu_2.getUser_i(), 1.0).setAllVariablesInteger();
+
+					temp++;
+
+					continue;
+				} else {
+					continue;
+				}
+
+			}
+
+		}
+		lp.setMinProblem(false);
+		System.out.println(lp.solve());
+//		System.out.println(lp.getLP().getIndexmap());
+		System.out.println(lp.getLP().convertToCPLEX());
+
+		/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
+
+		System.out.println("The calculations ended . . .\n");
+	}
+
+	private float weight(UserPairwiseScore ups_i, UserPairwiseScore ups_j, boolean played_again, String intentions) {
+
+		float weight = 0;
+		UserScore us = new UserScore();
+		UserScore us_2 = new UserScore();
+		us = ups_i.getScoresGiven().get(0);
+		us_2 = ups_j.getScoresGiven().get(0);
+
+		/*
+		 * if (played_again == true && intentions == IntentionEnum.WANT.toString()) {
+		 * weight = 1 + ((us.getScore().getColaboration() +
+		 * us_2.getScore().getColaboration()) / 2 + (us.getScore().getQuality() +
+		 * us_2.getScore().getQuality()) / 2) / 10; } else if (played_again == true &&
+		 * intentions == IntentionEnum.DWANT.toString()) { weight = -2 +
+		 * ((us.getScore().getColaboration() + us_2.getScore().getColaboration()) / 2 +
+		 * (us.getScore().getQuality() + us_2.getScore().getQuality()) / 2) / 10; } else
+		 * if (played_again == false && intentions == IntentionEnum.WANT.toString()) {
+		 * weight = 1; } else if (played_again == false && intentions ==
+		 * IntentionEnum.IDC.toString()) { weight = 0; }
+		 */
+		if (played_again == true && intentions == IntentionEnum.WANT.toString()) {
+			// System.out.println("~1~");
+			weight = 1 + (((us.getScore().getColaboration() + us_2.getScore().getColaboration()) / 2
+					+ (us.getScore().getQuality() + us_2.getScore().getQuality()) / 2) / 10);
+		} else if (played_again == true && intentions == IntentionEnum.DWANT.toString()) {
+			// System.out.println("~2~");
+			weight = -2 + (((us.getScore().getColaboration() + us_2.getScore().getColaboration()) / 2
+					+ (us.getScore().getQuality() + us_2.getScore().getQuality()) / 2) / 10);
+		} else if (played_again == true && intentions == IntentionEnum.IDC.toString()) {
+			// System.out.println("~3~");
+			weight = (float) (-0.5 + ((us.getScore().getColaboration() + us_2.getScore().getColaboration()) / 2
+					+ (us.getScore().getQuality() + us_2.getScore().getQuality()) / 2) / 10);
+		} else if (played_again == false && intentions == IntentionEnum.WANT.toString()) {
+			// System.out.println("~4~");
+			weight = 1 + (us_2.getScore().getColaboration() + us_2.getScore().getQuality() / 10);
+		} else if (played_again == false && intentions == IntentionEnum.DWANT.toString()) {
+			// System.out.println("~5~");
+			weight = -2 + (us_2.getScore().getColaboration() + us_2.getScore().getQuality() / 10);
+		} else if (played_again == false && intentions == IntentionEnum.IDC.toString()) {
+			// System.out.println("~6~");
+			weight = (float) (-0.5 + (us_2.getScore().getColaboration() + us_2.getScore().getQuality()) / 10);
+		}
+
+		return weight;
+	}
+
+	private String get_intentions(ArrayList<UserCollaborationIntentions> collaboration_intentions, String gradee,
+			String graded) {
+		UserCollaborationSpec ucs = new UserCollaborationSpec();
+		UserCollaborationIntentions uci;
+
+		// Iterate through the List with the Intentions for the players,
+		// in order to get the outter player
+		for (int i = 0; i < collaboration_intentions.size(); i++) {
+			uci = collaboration_intentions.get(i);
+			List<UserCollaborationSpec> uci_2;
+
+			// Iterate again through the List with the Intentions for the players,
+			// in order to get the nested player
+			for (int j = 0; j < collaboration_intentions.size(); j++) {
+				uci_2 = collaboration_intentions.get(j).getIntentions();
+
+				// Check if the Outter user is the one that is getting graded
+				if (uci.getGradingUser().equals(gradee)) {
+					ucs = uci.getIntentions().get(0);
+					// Check if the inner user is the one that grades
+					if (uci_2.get(0).getUserId().equals(graded)) {
+						intentions = ucs.getIntention().toString();
+						break;
+					}
+
+					continue;
+				}
+			}
+		}
+		return intentions;
+	}
+
+	private ArrayList<UtilityUser> utility_per_user_calculator(ArrayList<UtilityUser> utility_per_user) {
+
+		ArrayList<UtilityUser> utility_user = new ArrayList<UtilityUser>();
+		Random rand = new Random();
+		float utility_weight = 0;
+		int x_ij = 0;
+		UtilityUser uu = new UtilityUser();
+		UtilityUser uu_j = new UtilityUser();
+
+		// Iterate through the List with the other players, a player has played
+		// and store the user in our utility object
+		for (int c = 0; c < utility_per_user.size(); c++) {
+
+			uu.setUser_i(utility_per_user.get(c).getUser_i());
+			uu.setUser_j(utility_per_user.get(c).getUser_j());
+			uu.setWeight(utility_per_user.get(c).getWeight());
+//			System.out.println("Utility Per User Func#!!!");
+//			System.out.println(" User i: " + uu.getUser_i());
+//			System.out.println(" User j: " + uu.getUser_j());
+//			System.out.println(" Weight: " + uu.getWeight());
+			x_ij = rand.nextInt(2);
+
+			UtilityUser tmp = new UtilityUser();
+
+			// Iterate through the List with the other players, a player has played
+			// to get the nested user
+			for (int d = 0; d < utility_per_user.size(); d++) {
+				uu_j = utility_per_user.get(d);
+
+				// ∑_j,j≠i x_(i,j)=1
+				if (x_ij == 0 && (uu.getUser_i() != uu_j.getUser_j())) {/////////////////////
+
+					x_ij = 1; // αυτο να αλλαξει μολις δω πως παιρνει τιμές το x
+				} else if (x_ij == 1 && (uu.getUser_i() != uu_j.getUser_j())) {
+					// x_ij = 1; // αυτο να αλλαξει μολις δω πως παιρνει τιμές το x
+
+				}
+
+				// if the pair (nested outter ) matches
+				// add the new pair ij to the arraylist
+				if (uu.getUser_i() == uu_j.getUser_i()) {
+
+					utility_weight = uu.getWeight();// * x_ij;
+					tmp.setWeight(utility_weight);
+					tmp.setUser_i(uu.getUser_i());
+					tmp.setUser_j(uu.getUser_j());
+					tmp.setX(x_ij);
+					System.out.println("1) Utility Per User Func: ");
+					System.out.println(" User i: " + tmp.getUser_i());
+					System.out.println(" User j: " + tmp.getUser_j());
+					System.out.println(" Weight: " + tmp.getWeight());
+					System.out.println(" x_ij: " + tmp.getX());
+//					utility_user.add(tmp);
+					break;
+				}
+
+				// reset the counter
+//				x_ij = 0;
+			}
+
+		}
+
+		return utility_user;
+	}
+
+	private ArrayList<UserPairAssignment> global_utilityFunc(ArrayList<UtilityUser> global_utility) {
+		ArrayList<UserPairAssignment> utility_pair = new ArrayList<UserPairAssignment>();
+		Random rand = new Random();
+		int x_ij = 0;
+		int x_ji = 0;
+		UtilityUser uu = new UtilityUser();
+		UtilityUser uu_j = new UtilityUser();
+		int flag = 0;
+
+		for (int e = 0; e < global_utility.size(); e++) {
+
+			uu = global_utility.get(e);
+			UserPairAssignment trial = new UserPairAssignment();
+			UtilityUser tmp = new UtilityUser();
+
+			// check if uu.getWeight() !=0 x_ij=1 else 0
+			x_ij = uu.getWeight() != 0 ? 1 : 0;
+
+			for (int q = e; q < global_utility.size(); q++) {
+				uu_j = global_utility.get(q);
+
+				// check if uu.getWeight() !=0 x_ji=1 else 0
+				x_ji = uu_j.getWeight() != 0 ? 1 : 0;
+
+//				 System.out.println("x_ij: " + x_ij + "\n" + "x_ji: " + x_ji);
+//				 System.out.println("uu.getWeight(): " + uu.getWeight() + "\n" +
+//				 "uu_j.getWeight(): " + uu_j.getWeight());
+
+				// if the flag!=0 it means that we added a pair
+				if (flag != 0) {
+					flag = 0;
+					break;
+
+					// xi,j=xj,i, for each i, j
+				} else if (x_ij == x_ji) {
+					tmp.setUser_i(uu.getUser_i());
+					tmp.setUser_j(uu.getUser_j());
+					tmp.setWeight(uu.getWeight());
+					trial.setUser1(tmp.getUser_i());
+					trial.setUser2(tmp.getUser_j());
+
+//					 System.out.println("Sucess the xi=xj\nThe flag= " + flag );
+//					 System.out.println("Global Utility Func");
+//					 System.out.println(" User i: " + trial.getUser1());
+//					 System.out.println(" User j: " + trial.getUser2());
+//					 System.out.println("Global Utility Func#2");
+//					 System.out.println(" User i#2: " + tmp.getUser_i());
+//					 System.out.println(" User j#2: " + tmp.getUser_j());
+
+					utility_pair.add(trial);
+
+					flag++;
+					break;
+				} else
+					continue;
+			}
+		}
+
+		return utility_pair;
+	}
+
+	private ArrayList<UtilityUser> global_utilityFunc2(ArrayList<UtilityUser> global_utility) {
+
+		ArrayList<UtilityUser> utility_user = new ArrayList<UtilityUser>();
+		Random rand = new Random();
+		int x_ij = 0;
+		int x_ji = 0;
+		UtilityUser uu = new UtilityUser();
+		UtilityUser uu_j = new UtilityUser();
+
+		for (int e = 0; e < global_utility.size(); e++) {
+			uu = global_utility.get(e);
+			// for (UtilityUser uu : global_utility) {
+			UserPairAssignment trial = new UserPairAssignment();
+			UtilityUser tmp = new UtilityUser();
+
+			// check if uu.getWeight() !=0 x_ij=1 else 0
+			x_ij = uu.getWeight() != 0 ? 1 : 0;
+
+			for (int q = e; q < global_utility.size(); q++) {// for (int q = 0; q < global_utility.size(); q++) { //the
+																// original is with q=0, got wrong iterrations
+				uu_j = global_utility.get(q);
+
+				// check if uu.getWeight() !=0 x_ji=1 else 0
+				x_ji = uu_j.getWeight() != 0 ? 1 : 0;
+
+//				 System.out.println("~~~~~~~~~~~~~~~~~~~");
+//				 System.out.println("x_ij: " + x_ij + "\n" + "x_ji: " + x_ji);
+//				 System.out
+//					 .println("uu.getWeight(): " + uu.getWeight() + "\n" + "uu_j.getWeight(): " +
+//					 uu_j.getWeight());
+
+				if (x_ij == x_ji) {
+
+					tmp.setUser_i(uu.getUser_i());
+					tmp.setUser_j(uu.getUser_j());
+					tmp.setWeight(uu.getWeight());
+
+					utility_user.add(tmp);
+
+					break;
+
+				} else
+
+					continue;
+
+			}
+
+		}
+
+		return utility_user;
+	}
+
+	public static void progressPercentage(int remain, int total) {
+		if (remain > total) {
+			throw new IllegalArgumentException();
+		}
+		int maxBareSize = 10; // 10unit for 100%
+		int remainProcent = ((100 * remain) / total) / maxBareSize;
+		char defaultChar = '-';
+		String icon = "*";
+		String bare = new String(new char[maxBareSize]).replace('\0', defaultChar) + "]";
+		StringBuilder bareDone = new StringBuilder();
+		bareDone.append("[");
+		for (int i = 0; i < remainProcent; i++) {
+			bareDone.append(icon);
+		}
+		String bareRemain = bare.substring(remainProcent, bare.length());
+		System.out.print("\r" + bareDone + bareRemain + " " + remainProcent * 10 + "%");
+		if (remain == total) {
+			System.out.print("\n");
+		}
+	}
+
+}
