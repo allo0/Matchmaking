@@ -1,0 +1,40 @@
+#Fri Apr 16 22:09:52 EEST 2021
+\!/=
+/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.builder.resourceCopyExclusionFilter=
+/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.codeComplete.argumentPrefixes=
+/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.codeComplete.argumentSuffixes=
+/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.codeComplete.fieldPrefixes=
+/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.codeComplete.fieldSuffixes=
+/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.codeComplete.localPrefixes=
+/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.codeComplete.localSuffixes=
+/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.codeComplete.staticFieldPrefixes=
+/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.codeComplete.staticFieldSuffixes=
+/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.codeComplete.staticFinalFieldPrefixes=
+/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.codeComplete.staticFinalFieldSuffixes=
+/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode=enabled
+/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.codegen.targetPlatform=14
+/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.compliance=14
+/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.problem.assertIdentifier=error
+/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.problem.enumIdentifier=error
+/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.release=enabled
+/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.source=14
+/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.taskCaseSensitive=enabled
+/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.taskPriorities=NORMAL,HIGH,NORMAL
+/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.taskTags=TODO,FIXME,XXX
+/instance/org.eclipse.jdt.launching/org.eclipse.jdt.launching.PREF_DEFAULT_ENVIRONMENTS_XML=<?xml version\="1.0" encoding\="UTF-8" standalone\="no"?>\r\n<defaultEnvironments>\r\n    <defaultEnvironment environmentId\="JavaSE-14" vmId\="57,org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType13,1603638937819"/>\r\n    <defaultEnvironment environmentId\="JavaSE-15" vmId\="57,org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType13,1617038407623"/>\r\n</defaultEnvironments>\r\n
+/instance/org.eclipse.jdt.launching/org.eclipse.jdt.launching.PREF_VM_XML=<?xml version\="1.0" encoding\="UTF-8" standalone\="no"?>\r\n<vmSettings defaultVM\="57,org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType13,1603638937819" defaultVMConnector\="">\r\n    <vmType id\="org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType">\r\n        <vm id\="1603638937819" name\="jre" path\="C\:\\Users\\allo0\\.p2\\pool\\plugins\\org.eclipse.justj.openjdk.hotspot.jre.full.win32.x86_64_14.0.2.v20200815-0932\\jre"/>\r\n        <vm id\="1617038407623" name\="jdk-16" path\="C\:\\Program Files\\Java\\jdk-16"/>\r\n    </vmType>\r\n</vmSettings>\r\n
+/instance/org.eclipse.jdt.ui/org.eclipse.jdt.ui.exception.name=e
+/instance/org.eclipse.jdt.ui/org.eclipse.jdt.ui.formatterprofiles.version=21
+/instance/org.eclipse.jdt.ui/org.eclipse.jdt.ui.gettersetter.use.is=true
+/instance/org.eclipse.jdt.ui/org.eclipse.jdt.ui.ignorelowercasenames=true
+/instance/org.eclipse.jdt.ui/org.eclipse.jdt.ui.importorder=java;javax;org;com;
+/instance/org.eclipse.jdt.ui/org.eclipse.jdt.ui.ondemandthreshold=99
+/instance/org.eclipse.jdt.ui/org.eclipse.jdt.ui.overrideannotation=true
+/instance/org.eclipse.jdt.ui/org.eclipse.jdt.ui.staticondemandthreshold=99
+/instance/org.eclipse.jdt.ui/org.eclipse.jdt.ui.text.custom_code_templates=<?xml version\="1.0" encoding\="UTF-8" standalone\="no"?><templates/>
+/instance/org.eclipse.ui.workbench/org.eclipse.ui.commands=<?xml version\="1.0" encoding\="UTF-8"?>\r\n<org.eclipse.ui.commands/>
+@org.eclipse.jdt.core=3.25.0.v20210223-0522
+@org.eclipse.jdt.launching=3.19.100.v20210217-1644
+@org.eclipse.jdt.ui=3.22.100.v20210224-0730
+@org.eclipse.ui.workbench=3.122.100.v20210215-1525
+file_export_version=3.0
