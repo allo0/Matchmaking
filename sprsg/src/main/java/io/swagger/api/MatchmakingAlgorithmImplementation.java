@@ -125,7 +125,7 @@ public class MatchmakingAlgorithmImplementation {
 
 /////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
 		// global utility function
-		System.out.println(global_utility.size());
+//		System.out.println(global_utility.size());
 		temp_res = global_utilityFunc(global_utility);
 		// System.out.println(temp_res);
 
@@ -188,6 +188,18 @@ public class MatchmakingAlgorithmImplementation {
 
 		/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
 
+		// Maximize z = 0.28 * x12 + 1.69 * x21
+		// subject to
+		// x12=1
+		// where
+		// 0 <= x12 <= 1
+
+		//
+		// subject to
+		// 0.0 <= x1 - .5 * x2 <= 0.2
+		// -x2 + x3 <= 0.4
+		// where,
+
 		glp_prob lp;
 		glp_smcp parm;
 		SWIGTYPE_p_int ind;
@@ -199,43 +211,46 @@ public class MatchmakingAlgorithmImplementation {
 			System.out.println("Problem created");
 			GLPK.glp_set_prob_name(lp, "myProblem");
 
+			UtilityUser uu = new UtilityUser();
+			UtilityUser uu_2 = null;
+
+			for (int f = 0; f < last_users.size(); f++) {
+				uu = last_users.get(f);
+
+				for (int g = 0; g < last_users.size(); g++) {
+					uu_2 = last_users.get(g);
+
+					if (uu.getUser_i().equals(uu_2.getUser_j())) {
+System.out.println("he");
+					}
+				}
+			}
 			// Define columns
-			GLPK.glp_add_cols(lp, 3);
-			GLPK.glp_set_col_name(lp, 1, "x1");
-			GLPK.glp_set_col_kind(lp, 1, GLPKConstants.GLP_CV);
-			GLPK.glp_set_col_bnds(lp, 1, GLPKConstants.GLP_DB, 0, .5);
-			GLPK.glp_set_col_name(lp, 2, "x2");
-			GLPK.glp_set_col_kind(lp, 2, GLPKConstants.GLP_CV);
-			GLPK.glp_set_col_bnds(lp, 2, GLPKConstants.GLP_DB, 0, .5);
-			GLPK.glp_set_col_name(lp, 3, "x3");
-			GLPK.glp_set_col_kind(lp, 3, GLPKConstants.GLP_CV);
-			GLPK.glp_set_col_bnds(lp, 3, GLPKConstants.GLP_DB, 0, .5);
+			GLPK.glp_add_cols(lp, 2);
+			GLPK.glp_set_col_name(lp, 1, "x12");
+			GLPK.glp_set_col_kind(lp, 1, GLPKConstants.GLP_IV);
+			GLPK.glp_set_col_bnds(lp, 1, GLPKConstants.GLP_DB, 0, 1);
+//			GLPK.glp_set_col_name(lp, 2, "x2");
+//			GLPK.glp_set_col_kind(lp, 2, GLPKConstants.GLP_IV);
+//			GLPK.glp_set_col_bnds(lp, 2, GLPKConstants.GLP_DB, 0, 1);
 
 			// Create constraints
 
 			// Allocate memory
-			ind = GLPK.new_intArray(3);
-			val = GLPK.new_doubleArray(3);
+			ind = GLPK.new_intArray(2);
+			val = GLPK.new_doubleArray(2);
 
 			// Create rows
 			GLPK.glp_add_rows(lp, 2);
 
 			// Set row details
 			GLPK.glp_set_row_name(lp, 1, "c1");
-			GLPK.glp_set_row_bnds(lp, 1, GLPKConstants.GLP_DB, 0, 0.2);
+			GLPK.glp_set_row_bnds(lp, 1, GLPKConstants.GLP_FX, 1, 1);
 			GLPK.intArray_setitem(ind, 1, 1);
 			GLPK.intArray_setitem(ind, 2, 2);
-			GLPK.doubleArray_setitem(val, 1, 1.);
-			GLPK.doubleArray_setitem(val, 2, -.5);
+			GLPK.doubleArray_setitem(val, 1, 1);
+			GLPK.doubleArray_setitem(val, 2, 1);
 			GLPK.glp_set_mat_row(lp, 1, 2, ind, val);
-
-			GLPK.glp_set_row_name(lp, 2, "c2");
-			GLPK.glp_set_row_bnds(lp, 2, GLPKConstants.GLP_UP, 0, 0.4);
-			GLPK.intArray_setitem(ind, 1, 2);
-			GLPK.intArray_setitem(ind, 2, 3);
-			GLPK.doubleArray_setitem(val, 1, -1.);
-			GLPK.doubleArray_setitem(val, 2, 1.);
-			GLPK.glp_set_mat_row(lp, 2, 2, ind, val);
 
 			// Free memory
 			GLPK.delete_intArray(ind);
@@ -243,14 +258,12 @@ public class MatchmakingAlgorithmImplementation {
 
 			// Define objective
 			GLPK.glp_set_obj_name(lp, "z");
-			GLPK.glp_set_obj_dir(lp, GLPKConstants.GLP_MIN);
-			GLPK.glp_set_obj_coef(lp, 0, 1.);
-			GLPK.glp_set_obj_coef(lp, 1, -.5);
-			GLPK.glp_set_obj_coef(lp, 2, .5);
-			GLPK.glp_set_obj_coef(lp, 3, -1);
+			GLPK.glp_set_obj_dir(lp, GLPKConstants.GLP_MAX);
+			GLPK.glp_set_obj_coef(lp, 1, 0.28);
+			GLPK.glp_set_obj_coef(lp, 2, 1.69);
 
 			// Write model to file
-			// GLPK.glp_write_lp(lp, null, "lp.lp");
+			GLPK.glp_write_lp(lp, null, "lp.lp");
 
 			// Solve model
 			parm = new glp_smcp();
@@ -394,10 +407,7 @@ public class MatchmakingAlgorithmImplementation {
 			uu.setUser_i(utility_per_user.get(c).getUser_i());
 			uu.setUser_j(utility_per_user.get(c).getUser_j());
 			uu.setWeight(utility_per_user.get(c).getWeight());
-//			System.out.println("Utility Per User Func#!!!");
-//			System.out.println(" User i: " + uu.getUser_i());
-//			System.out.println(" User j: " + uu.getUser_j());
-//			System.out.println(" Weight: " + uu.getWeight());
+
 			x_ij = rand.nextInt(2);
 
 			UtilityUser tmp = new UtilityUser();
@@ -425,11 +435,11 @@ public class MatchmakingAlgorithmImplementation {
 					tmp.setUser_i(uu.getUser_i());
 					tmp.setUser_j(uu.getUser_j());
 					tmp.setX(x_ij);
-//					System.out.println("1) Utility Per User Func: ");
-//					System.out.println(" User i: " + tmp.getUser_i());
-//					System.out.println(" User j: " + tmp.getUser_j());
-//					System.out.println(" Weight: " + tmp.getWeight());
-//					System.out.println(" x_ij: " + tmp.getX());
+					System.out.println("1) Utility Per User Func: ");
+					System.out.println(" User i: " + tmp.getUser_i());
+					System.out.println(" User j: " + tmp.getUser_j());
+					System.out.println(" Weight: " + tmp.getWeight());
+					System.out.println(" x_ij: " + tmp.getX());
 					utility_user.add(tmp);
 					break;
 				}
@@ -522,7 +532,7 @@ public class MatchmakingAlgorithmImplementation {
 			// check if uu.getWeight() !=0 x_ij=1 else 0
 			x_ij = uu.getWeight() != 0 ? 1 : 0;
 
-			for (int q = e; q < global_utility.size(); q++) {// for (int q = 0; q < global_utility.size(); q++) { //the
+			for (int q = 0; q < global_utility.size(); q++) {// for (int q = 0; q < global_utility.size(); q++) { //the
 																// original is with q=0, got wrong iterrations
 				uu_j = global_utility.get(q);
 
