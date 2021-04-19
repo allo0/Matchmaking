@@ -65,7 +65,8 @@ public class MatchmakingAlgorithmImplementation {
 				us = ups_2.getScoresGiven().get(0);
 
 				// Check if the Outter user is the same as the nested one
-				if (ups.getGradingUser().equals(ups_2.getGradingUser())) {
+				if (ups.getGradingUser().equals(ups_2.getGradingUser())
+						&& ups.getScoresGiven().get(0).getUserId().equals(ups_2.getScoresGiven().get(0).getUserId())) {
 //					 System.out.println("The users match:");
 //					 System.out.println(" ups.getGradingUser(): " + ups.getGradingUser());
 //					 System.out.println(" ups_2.getGradingUser(): " + ups_2.getGradingUser());
@@ -160,16 +161,16 @@ public class MatchmakingAlgorithmImplementation {
 //				if (uu.getUser_i().equals(uu_2.getUser_j())) {
 //
 //					// add as objects in the maximize problem, each user with his weight
+////					System.out.println(uu_2.getWeight());
 //					lp.plus(uu.getUser_i(), uu.getWeight()).plus(uu_2.getUser_i(), uu_2.getWeight());
-//					// lp.plus(uu.getUser_j(), uu_2.getWeight());
 //
 //					// add the constraints necessary
 //					// for each pair:
 //
 //					lp.addConstraint("c" + temp, 1, "<=").plus(uu.getUser_i(), 1.0).plus(uu_2.getUser_i(), 1.0)
-//							.setAllVariablesInteger();
-//					lp.addConstraint("c" + (temp + 1), 1, ">=").plus(uu.getUser_i(), 1.0).setAllVariablesInteger();
-//					lp.addConstraint("c" + (temp + 2), 1, ">=").plus(uu_2.getUser_i(), 1.0).setAllVariablesInteger();
+//							.setAllVariablesBoolean();
+//					lp.addConstraint("c" + (temp + 1), 1, ">=").plus(uu.getUser_i(), 1.0).setAllVariablesBoolean();
+//					lp.addConstraint("c" + (temp + 2), 1, ">=").plus(uu_2.getUser_i(), 1.0).setAllVariablesBoolean();
 //
 //					temp++;
 //
@@ -221,10 +222,10 @@ public class MatchmakingAlgorithmImplementation {
 					uu_2 = last_users.get(g);
 
 					if (uu.getUser_i().equals(uu_2.getUser_j())) {
-System.out.printf("%d %d \n",f , g );
+						System.out.printf("%d %d \n", f, g);
 					}
 				}
-		}
+			}
 			// Define columns
 			GLPK.glp_add_cols(lp, 2);
 			GLPK.glp_set_col_name(lp, 1, "x12");
@@ -395,7 +396,7 @@ System.out.printf("%d %d \n",f , g );
 
 		ArrayList<UtilityUser> utility_user = new ArrayList<UtilityUser>();
 		Random rand = new Random();
-		float utility_weight = 0;
+
 		int x_ij = 0;
 		UtilityUser uu = new UtilityUser();
 		UtilityUser uu_j = new UtilityUser();
@@ -410,11 +411,12 @@ System.out.printf("%d %d \n",f , g );
 
 			x_ij = rand.nextInt(2);
 
-			UtilityUser tmp = new UtilityUser();
+
 
 			// Iterate through the List with the other players, a player has played
 			// to get the nested user
 			for (int d = 0; d < utility_per_user.size(); d++) {
+				UtilityUser tmp = new UtilityUser();
 				uu_j = utility_per_user.get(d);
 
 				// ∑_j,j≠i x_(i,j)=1
@@ -428,21 +430,22 @@ System.out.printf("%d %d \n",f , g );
 
 				// if the pair (nested outter ) matches
 				// add the new pair ij to the arraylist
-				if (uu.getUser_i().equals(uu_j.getUser_j())) {
-					utility_weight = uu.getWeight();// * x_ij;
-					tmp.setWeight(utility_weight);
+				if (uu.getUser_i().equals(uu_j.getUser_j()) && uu.getUser_j().equals(uu_j.getUser_i())) {
+
+					tmp.setWeight(uu.getWeight());
 					tmp.setUser_i(uu.getUser_i());
-					tmp.setUser_j(uu.getUser_j());
+					tmp.setUser_j(uu_j.getUser_i());
 					tmp.setX(x_ij);
-					
-					System.out.printf("%d %d\n", c, d);
-					System.out.printf("%d) Utility Per User Func: \n",c);
-					System.out.println(" User i: " + tmp.getUser_i());
-					System.out.println(" User j: " + tmp.getUser_j());
-					System.out.println(" Weight: " + tmp.getWeight());
-					System.out.println(" x_ij: " + tmp.getX());
-					
+
+//					System.out.printf("%d %d\n", c, d);
+//					System.out.printf("%d) Utility Per User Func: \n", c);
+//					System.out.println(" User i: " + tmp.getUser_i());
+//					System.out.println(" User j: " + tmp.getUser_j());
+//					System.out.println(" Weight: " + tmp.getWeight());
+//					System.out.println(" x_ij: " + tmp.getX());
+
 					utility_user.add(tmp);
+
 					break;
 				}
 
@@ -473,7 +476,7 @@ System.out.printf("%d %d \n",f , g );
 			// check if uu.getWeight() !=0 x_ij=1 else 0
 			x_ij = uu.getWeight() != 0 ? 1 : 0;
 
-			for (int q = e; q < global_utility.size(); q++) {
+			for (int q = 0; q < global_utility.size(); q++) {
 				uu_j = global_utility.get(q);
 
 				// check if uu.getWeight() !=0 x_ji=1 else 0
@@ -496,13 +499,14 @@ System.out.printf("%d %d \n",f , g );
 					trial.setUser1(tmp.getUser_i());
 					trial.setUser2(tmp.getUser_j());
 
-//					 System.out.println("Sucess the xi=xj\nThe flag= " + flag );
-//					 System.out.println("Global Utility Func");
-//					 System.out.println(" User i: " + trial.getUser1());
-//					 System.out.println(" User j: " + trial.getUser2());
-//					 System.out.println("Global Utility Func#2");
-//					 System.out.println(" User i#2: " + tmp.getUser_i());
-//					 System.out.println(" User j#2: " + tmp.getUser_j());
+					System.out.printf("%d %d\n", e, q);
+					System.out.println("Sucess the xi=xj\nThe flag= " + flag);
+					System.out.println("Global Utility Func");
+					System.out.println(" User i: " + trial.getUser1());
+					System.out.println(" User j: " + trial.getUser2());
+					System.out.println("Global Utility Func#2");
+					System.out.println(" User i#2: " + tmp.getUser_i());
+					System.out.println(" User j#2: " + tmp.getUser_j());
 
 					utility_pair.add(trial);
 

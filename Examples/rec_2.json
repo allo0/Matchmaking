@@ -23,7 +23,7 @@
             "userId": "test2",
             "score": {
               "quality": 3.8,
-              "collaboration": 4.1
+              "collaboration": 4.0
             }
           }
         ]
@@ -35,7 +35,7 @@
             "userId": "test1",
             "score": {
               "quality": 4.9,
-              "collaboration": 2.1
+              "collaboration": 2.0
             }
           }
         ]
@@ -47,7 +47,7 @@
         "intentions": [
           {
             "userId": "test2",
-            "intention": "dwant"
+            "intention": "idc"
           }
         ]
       },

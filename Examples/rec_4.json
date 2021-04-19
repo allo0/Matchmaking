@@ -1,4 +1,4 @@
-{
+  {
   "userGlobalScores": [
       {
         "userId": "test1",
@@ -107,7 +107,7 @@
         "intentions": [
           {
             "userId": "test2",
-            "intention": "idc"
+            "intention": "want"
           }
         ]
       },
