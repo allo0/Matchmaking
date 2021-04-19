@@ -221,10 +221,10 @@ public class MatchmakingAlgorithmImplementation {
 					uu_2 = last_users.get(g);
 
 					if (uu.getUser_i().equals(uu_2.getUser_j())) {
-System.out.println("he");
+System.out.printf("%d %d \n",f , g );
 					}
 				}
-			}
+		}
 			// Define columns
 			GLPK.glp_add_cols(lp, 2);
 			GLPK.glp_set_col_name(lp, 1, "x12");
@@ -428,18 +428,20 @@ System.out.println("he");
 
 				// if the pair (nested outter ) matches
 				// add the new pair ij to the arraylist
-				if (uu.getUser_i() == uu_j.getUser_i()) {
-
+				if (uu.getUser_i().equals(uu_j.getUser_j())) {
 					utility_weight = uu.getWeight();// * x_ij;
 					tmp.setWeight(utility_weight);
 					tmp.setUser_i(uu.getUser_i());
 					tmp.setUser_j(uu.getUser_j());
 					tmp.setX(x_ij);
-					System.out.println("1) Utility Per User Func: ");
+					
+					System.out.printf("%d %d\n", c, d);
+					System.out.printf("%d) Utility Per User Func: \n",c);
 					System.out.println(" User i: " + tmp.getUser_i());
 					System.out.println(" User j: " + tmp.getUser_j());
 					System.out.println(" Weight: " + tmp.getWeight());
 					System.out.println(" x_ij: " + tmp.getX());
+					
 					utility_user.add(tmp);
 					break;
 				}
