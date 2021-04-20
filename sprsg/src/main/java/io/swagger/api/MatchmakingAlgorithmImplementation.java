@@ -221,7 +221,7 @@ public class MatchmakingAlgorithmImplementation {
 				for (int g = 0; g < last_users.size(); g++) {
 					uu_2 = last_users.get(g);
 
-					if (uu.getUser_i().equals(uu_2.getUser_j())) {
+					if (uu.getUser_i().equals(uu_2.getUser_j())&& uu.getUser_j().equals(uu_2.getUser_i())) {
 						System.out.printf("%d %d \n", f, g);
 					}
 				}
@@ -420,13 +420,13 @@ public class MatchmakingAlgorithmImplementation {
 				uu_j = utility_per_user.get(d);
 
 				// ∑_j,j≠i x_(i,j)=1
-				if (x_ij == 0 && (uu.getUser_i() != uu_j.getUser_j())) {/////////////////////
-
-					x_ij = 1; // αυτο να αλλαξει μολις δω πως παιρνει τιμές το x
-				} else if (x_ij == 1 && (uu.getUser_i() != uu_j.getUser_j())) {
-					// x_ij = 1; // αυτο να αλλαξει μολις δω πως παιρνει τιμές το x
-
-				}
+//				if (x_ij == 0 && (uu.getUser_i() != uu_j.getUser_j())) {/////////////////////
+//
+//					x_ij = 1; // αυτο να αλλαξει μολις δω πως παιρνει τιμές το x
+//				} else if (x_ij == 1 && (uu.getUser_i() != uu_j.getUser_j())) {
+//					// x_ij = 1; // αυτο να αλλαξει μολις δω πως παιρνει τιμές το x
+//
+//				}
 
 				// if the pair (nested outter ) matches
 				// add the new pair ij to the arraylist
@@ -437,12 +437,12 @@ public class MatchmakingAlgorithmImplementation {
 					tmp.setUser_j(uu_j.getUser_i());
 					tmp.setX(x_ij);
 
-//					System.out.printf("%d %d\n", c, d);
-//					System.out.printf("%d) Utility Per User Func: \n", c);
-//					System.out.println(" User i: " + tmp.getUser_i());
-//					System.out.println(" User j: " + tmp.getUser_j());
-//					System.out.println(" Weight: " + tmp.getWeight());
-//					System.out.println(" x_ij: " + tmp.getX());
+					System.out.printf("%d %d\n", c, d);
+					System.out.printf("%d) Utility Per User Func: \n", c);
+					System.out.println(" User i: " + tmp.getUser_i());
+					System.out.println(" User j: " + tmp.getUser_j());
+					System.out.println(" Weight: " + tmp.getWeight());
+					System.out.println(" x_ij: " + tmp.getX());
 
 					utility_user.add(tmp);
 
@@ -499,14 +499,14 @@ public class MatchmakingAlgorithmImplementation {
 					trial.setUser1(tmp.getUser_i());
 					trial.setUser2(tmp.getUser_j());
 
-					System.out.printf("%d %d\n", e, q);
-					System.out.println("Sucess the xi=xj\nThe flag= " + flag);
-					System.out.println("Global Utility Func");
-					System.out.println(" User i: " + trial.getUser1());
-					System.out.println(" User j: " + trial.getUser2());
-					System.out.println("Global Utility Func#2");
-					System.out.println(" User i#2: " + tmp.getUser_i());
-					System.out.println(" User j#2: " + tmp.getUser_j());
+//					System.out.printf("%d %d\n", e, q);
+//					System.out.println("Sucess the xi=xj\nThe flag= " + flag);
+//					System.out.println("Global Utility Func");
+//					System.out.println(" User i: " + trial.getUser1());
+//					System.out.println(" User j: " + trial.getUser2());
+//					System.out.println("Global Utility Func#2");
+//					System.out.println(" User i#2: " + tmp.getUser_i());
+//					System.out.println(" User j#2: " + tmp.getUser_j());
 
 					utility_pair.add(trial);
 
