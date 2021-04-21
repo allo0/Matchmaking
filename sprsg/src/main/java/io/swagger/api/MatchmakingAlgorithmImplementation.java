@@ -215,6 +215,12 @@ public class MatchmakingAlgorithmImplementation {
 			UtilityUser uu = new UtilityUser();
 			UtilityUser uu_2 = null;
 
+			//~~~~~
+			double tmp_wij=0;
+			double tmp_wji=0;
+			int tmp_xij=0;
+			int tmp_xji=0;
+			//~~~~~
 			for (int f = 0; f < last_users.size(); f++) {
 				uu = last_users.get(f);
 
@@ -222,7 +228,13 @@ public class MatchmakingAlgorithmImplementation {
 					uu_2 = last_users.get(g);
 
 					if (uu.getUser_i().equals(uu_2.getUser_j())&& uu.getUser_j().equals(uu_2.getUser_i())) {
-						System.out.printf("%d %d \n", f, g);
+//						System.out.printf("%d %d \n", f, g);
+						tmp_wij=uu.getWeight();
+						tmp_wji=uu_2.getWeight();
+						tmp_xij=uu.getX();
+						tmp_xji=uu_2.getX();
+						System.out.printf("Weights: %s & %s: %f %f\n",uu.getUser_i(),uu_2.getUser_i(),tmp_wij,tmp_wji);
+						System.out.printf("x: xij & xji: %d %d\n",tmp_xij,tmp_xji);
 					}
 				}
 			}
@@ -231,9 +243,9 @@ public class MatchmakingAlgorithmImplementation {
 			GLPK.glp_set_col_name(lp, 1, "x12");
 			GLPK.glp_set_col_kind(lp, 1, GLPKConstants.GLP_IV);
 			GLPK.glp_set_col_bnds(lp, 1, GLPKConstants.GLP_DB, 0, 1);
-//			GLPK.glp_set_col_name(lp, 2, "x2");
-//			GLPK.glp_set_col_kind(lp, 2, GLPKConstants.GLP_IV);
-//			GLPK.glp_set_col_bnds(lp, 2, GLPKConstants.GLP_DB, 0, 1);
+			GLPK.glp_set_col_name(lp, 2, "x21");
+			GLPK.glp_set_col_kind(lp, 2, GLPKConstants.GLP_IV);
+			GLPK.glp_set_col_bnds(lp, 2, GLPKConstants.GLP_DB, 0, 1);
 
 			// Create constraints
 
@@ -246,11 +258,11 @@ public class MatchmakingAlgorithmImplementation {
 
 			// Set row details
 			GLPK.glp_set_row_name(lp, 1, "c1");
-			GLPK.glp_set_row_bnds(lp, 1, GLPKConstants.GLP_FX, 1, 1);
+			GLPK.glp_set_row_bnds(lp, 1, GLPKConstants.GLP_FX, 1.0, 1.0);
 			GLPK.intArray_setitem(ind, 1, 1);
 			GLPK.intArray_setitem(ind, 2, 2);
-			GLPK.doubleArray_setitem(val, 1, 1);
-			GLPK.doubleArray_setitem(val, 2, 1);
+			GLPK.doubleArray_setitem(val, 1, 1.);
+			GLPK.doubleArray_setitem(val, 2, 0);
 			GLPK.glp_set_mat_row(lp, 1, 2, ind, val);
 
 			// Free memory
@@ -264,7 +276,7 @@ public class MatchmakingAlgorithmImplementation {
 			GLPK.glp_set_obj_coef(lp, 2, 1.69);
 
 			// Write model to file
-			GLPK.glp_write_lp(lp, null, "lp.lp");
+			GLPK.glp_write_lp(lp, null, "lp2.lp");
 
 			// Solve model
 			parm = new glp_smcp();
