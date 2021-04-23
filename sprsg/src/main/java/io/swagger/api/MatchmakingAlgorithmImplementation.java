@@ -221,6 +221,10 @@ public class MatchmakingAlgorithmImplementation {
 			int tmp_xij=0;
 			int tmp_xji=0;
 			//~~~~~
+			
+			// Define columns
+			GLPK.glp_add_cols(lp, last_users.size());
+			
 			for (int f = 0; f < last_users.size(); f++) {
 				uu = last_users.get(f);
 
@@ -235,45 +239,85 @@ public class MatchmakingAlgorithmImplementation {
 						tmp_xji=uu_2.getX();
 						System.out.printf("Weights: %s & %s: %f %f\n",uu.getUser_i(),uu_2.getUser_i(),tmp_wij,tmp_wji);
 						System.out.printf("x: xij & xji: %d %d\n",tmp_xij,tmp_xji);
+						
+						
+						
+//						GLPK.glp_set_col_name(lp, 1, "x"+(f+1)+(g+1));
+//						GLPK.glp_set_col_kind(lp, 1, GLPKConstants.GLP_IV);
+//						GLPK.glp_set_col_bnds(lp, 1, GLPKConstants.GLP_DB, 0, 1);
+//						GLPK.glp_set_col_name(lp, 2, "x21");
+//						GLPK.glp_set_col_kind(lp, 2, GLPKConstants.GLP_IV);
+//						GLPK.glp_set_col_bnds(lp, 2, GLPKConstants.GLP_DB, 0, 1);
+//
+//						// Create constraints
+//
+//						// Allocate memory
+//						ind = GLPK.new_intArray(2);
+//						val = GLPK.new_doubleArray(2);
+//
+//						// Create rows
+//						GLPK.glp_add_rows(lp, 2);
+//
+//						// Set row details
+//						GLPK.glp_set_row_name(lp, 1, "c1");
+//						GLPK.glp_set_row_bnds(lp, 1, GLPKConstants.GLP_FX, 1.0, 1.0);
+//						GLPK.intArray_setitem(ind, 1, 1);
+//						GLPK.intArray_setitem(ind, 2, 2);
+//						GLPK.doubleArray_setitem(val, 1, 1.);
+//						GLPK.doubleArray_setitem(val, 2, 1);
+//						GLPK.glp_set_mat_row(lp, 1, 2, ind, val);
+//
+//
+//						// Free memory
+//						GLPK.delete_intArray(ind);
+//						GLPK.delete_doubleArray(val);
+//
+//						// Define objective
+//						GLPK.glp_set_obj_name(lp, "fucking");
+//						GLPK.glp_set_obj_dir(lp, GLPKConstants.GLP_MAX);
+//						GLPK.glp_set_obj_coef(lp, 1, 0.28);
+//						GLPK.glp_set_obj_coef(lp, 2, 1.69);
+
 					}
 				}
 			}
-			// Define columns
-			GLPK.glp_add_cols(lp, 2);
-			GLPK.glp_set_col_name(lp, 1, "x12");
-			GLPK.glp_set_col_kind(lp, 1, GLPKConstants.GLP_IV);
-			GLPK.glp_set_col_bnds(lp, 1, GLPKConstants.GLP_DB, 0, 1);
-			GLPK.glp_set_col_name(lp, 2, "x21");
-			GLPK.glp_set_col_kind(lp, 2, GLPKConstants.GLP_IV);
-			GLPK.glp_set_col_bnds(lp, 2, GLPKConstants.GLP_DB, 0, 1);
-
-			// Create constraints
-
-			// Allocate memory
-			ind = GLPK.new_intArray(2);
-			val = GLPK.new_doubleArray(2);
-
-			// Create rows
-			GLPK.glp_add_rows(lp, 2);
-
-			// Set row details
-			GLPK.glp_set_row_name(lp, 1, "c1");
-			GLPK.glp_set_row_bnds(lp, 1, GLPKConstants.GLP_FX, 1.0, 1.0);
-			GLPK.intArray_setitem(ind, 1, 1);
-			GLPK.intArray_setitem(ind, 2, 2);
-			GLPK.doubleArray_setitem(val, 1, 1.);
-			GLPK.doubleArray_setitem(val, 2, 0);
-			GLPK.glp_set_mat_row(lp, 1, 2, ind, val);
-
-			// Free memory
-			GLPK.delete_intArray(ind);
-			GLPK.delete_doubleArray(val);
-
-			// Define objective
-			GLPK.glp_set_obj_name(lp, "z");
-			GLPK.glp_set_obj_dir(lp, GLPKConstants.GLP_MAX);
-			GLPK.glp_set_obj_coef(lp, 1, 0.28);
-			GLPK.glp_set_obj_coef(lp, 2, 1.69);
+//			// Define columns
+//			GLPK.glp_add_cols(lp, 2);
+//			GLPK.glp_set_col_name(lp, 1, "x12");
+//			GLPK.glp_set_col_kind(lp, 1, GLPKConstants.GLP_IV);
+//			GLPK.glp_set_col_bnds(lp, 1, GLPKConstants.GLP_DB, 0, 1);
+//			GLPK.glp_set_col_name(lp, 2, "x21");
+//			GLPK.glp_set_col_kind(lp, 2, GLPKConstants.GLP_IV);
+//			GLPK.glp_set_col_bnds(lp, 2, GLPKConstants.GLP_DB, 0, 1);
+//
+//			// Create constraints
+//
+//			// Allocate memory
+//			ind = GLPK.new_intArray(2);
+//			val = GLPK.new_doubleArray(2);
+//
+//			// Create rows
+//			GLPK.glp_add_rows(lp, 2);
+//
+//			// Set row details
+//			GLPK.glp_set_row_name(lp, 1, "c1");
+//			GLPK.glp_set_row_bnds(lp, 1, GLPKConstants.GLP_FX, 1.0, 1.0);
+//			GLPK.intArray_setitem(ind, 1, 1);
+//			GLPK.intArray_setitem(ind, 2, 2);
+//			GLPK.doubleArray_setitem(val, 1, 1.);
+//			GLPK.doubleArray_setitem(val, 2, 1);
+//			GLPK.glp_set_mat_row(lp, 1, 2, ind, val);
+//
+//
+//			// Free memory
+//			GLPK.delete_intArray(ind);
+//			GLPK.delete_doubleArray(val);
+//
+//			// Define objective
+//			GLPK.glp_set_obj_name(lp, "fucking");
+//			GLPK.glp_set_obj_dir(lp, GLPKConstants.GLP_MAX);
+//			GLPK.glp_set_obj_coef(lp, 1, 0.28);
+//			GLPK.glp_set_obj_coef(lp, 2, 1.69);
 
 			// Write model to file
 			GLPK.glp_write_lp(lp, null, "lp2.lp");
