@@ -224,6 +224,14 @@ public class MatchmakingAlgorithmImplementation {
 			
 			// Define columns
 			GLPK.glp_add_cols(lp, last_users.size());
+			// Create rows
+			GLPK.glp_add_rows(lp, last_users.size());
+			// Allocate memory
+			ind = GLPK.new_intArray( last_users.size()+1);
+			val = GLPK.new_doubleArray( last_users.size()+1);
+			// Define objective
+			GLPK.glp_set_obj_name(lp, "fucking");
+			GLPK.glp_set_obj_dir(lp, GLPKConstants.GLP_MAX);
 			
 			for (int f = 0; f < last_users.size(); f++) {
 				uu = last_users.get(f);
@@ -231,56 +239,50 @@ public class MatchmakingAlgorithmImplementation {
 				for (int g = 0; g < last_users.size(); g++) {
 					uu_2 = last_users.get(g);
 
-					if (uu.getUser_i().equals(uu_2.getUser_j())&& uu.getUser_j().equals(uu_2.getUser_i())) {
-//						System.out.printf("%d %d \n", f, g);
+//					if (uu.getUser_i().equals(uu_2.getUser_j())&& uu.getUser_j().equals(uu_2.getUser_i())) {
+						System.out.printf("%d %d \n", f, g);
 						tmp_wij=uu.getWeight();
 						tmp_wji=uu_2.getWeight();
 						tmp_xij=uu.getX();
 						tmp_xji=uu_2.getX();
-						System.out.printf("Weights: %s & %s: %f %f\n",uu.getUser_i(),uu_2.getUser_i(),tmp_wij,tmp_wji);
-						System.out.printf("x: xij & xji: %d %d\n",tmp_xij,tmp_xji);
+//						System.out.printf("Weights: %s & %s: %f %f\n",uu.getUser_i(),uu_2.getUser_i(),tmp_wij,tmp_wji);
+//						System.out.printf("x: xij & xji: %d %d\n",tmp_xij,tmp_xji);
 						
 						
 						
-//						GLPK.glp_set_col_name(lp, 1, "x"+(f+1)+(g+1));
-//						GLPK.glp_set_col_kind(lp, 1, GLPKConstants.GLP_IV);
-//						GLPK.glp_set_col_bnds(lp, 1, GLPKConstants.GLP_DB, 0, 1);
+						GLPK.glp_set_col_name(lp, g, "x"+g);
+						GLPK.glp_set_col_kind(lp, g, GLPKConstants.GLP_IV);
+						GLPK.glp_set_col_bnds(lp, g, GLPKConstants.GLP_DB, 0, 1);
 //						GLPK.glp_set_col_name(lp, 2, "x21");
 //						GLPK.glp_set_col_kind(lp, 2, GLPKConstants.GLP_IV);
 //						GLPK.glp_set_col_bnds(lp, 2, GLPKConstants.GLP_DB, 0, 1);
-//
-//						// Create constraints
-//
-//						// Allocate memory
-//						ind = GLPK.new_intArray(2);
-//						val = GLPK.new_doubleArray(2);
-//
-//						// Create rows
-//						GLPK.glp_add_rows(lp, 2);
-//
-//						// Set row details
-//						GLPK.glp_set_row_name(lp, 1, "c1");
-//						GLPK.glp_set_row_bnds(lp, 1, GLPKConstants.GLP_FX, 1.0, 1.0);
-//						GLPK.intArray_setitem(ind, 1, 1);
+
+						// Create constraints
+
+					// Set row details
+						GLPK.glp_set_row_name(lp, g, ("c"+g));
+						GLPK.glp_set_row_bnds(lp, g, GLPKConstants.GLP_FX, 1.0, 1.0);
+						GLPK.intArray_setitem(ind, g, 1);
 //						GLPK.intArray_setitem(ind, 2, 2);
-//						GLPK.doubleArray_setitem(val, 1, 1.);
+						GLPK.doubleArray_setitem(val, g, 1.0);
 //						GLPK.doubleArray_setitem(val, 2, 1);
-//						GLPK.glp_set_mat_row(lp, 1, 2, ind, val);
-//
-//
-//						// Free memory
-//						GLPK.delete_intArray(ind);
-//						GLPK.delete_doubleArray(val);
-//
-//						// Define objective
-//						GLPK.glp_set_obj_name(lp, "fucking");
-//						GLPK.glp_set_obj_dir(lp, GLPKConstants.GLP_MAX);
-//						GLPK.glp_set_obj_coef(lp, 1, 0.28);
+						GLPK.glp_set_mat_row(lp, g, 2, ind, val);
+
+
+					
+						// Define objective
+						
+						GLPK.glp_set_obj_coef(lp, g, tmp_wij);
 //						GLPK.glp_set_obj_coef(lp, 2, 1.69);
 
-					}
+//					}
 				}
+				
 			}
+			// Free memory
+			GLPK.delete_intArray(ind);
+			GLPK.delete_doubleArray(val);
+
 //			// Define columns
 //			GLPK.glp_add_cols(lp, 2);
 //			GLPK.glp_set_col_name(lp, 1, "x12");
