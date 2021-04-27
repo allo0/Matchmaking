@@ -1,5 +1,6 @@
 package io.swagger.api;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -63,8 +64,13 @@ public class MatchmakingApiController implements MatchmakingApi {
 
 			MatchmakingAlgorithmImplementation ma = new MatchmakingAlgorithmImplementation();
 
-			result = ma.final_pair(body.getUserGlobalScores(), body.getUserPairwiseScore(),
-					body.getUserCollaborationIntentions());
+			try {
+				result = ma.final_pair(body.getUserGlobalScores(), body.getUserPairwiseScore(),
+						body.getUserCollaborationIntentions());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
 //			for (int i = 0; i < users_id.size(); i += 2) {
 //				UserPairAssignment pairToAdd = new UserPairAssignment();

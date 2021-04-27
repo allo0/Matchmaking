@@ -48,7 +48,7 @@
             "userId": "test1",
             "score": {
               "quality": 2.8,
-              "collaboration": 1.1
+              "collaboration": 4.1
             }
           }
         ]
@@ -59,7 +59,7 @@
             "userId": "test3",
             "score": {
               "quality": 3.5,
-              "collaboration": 1.5
+              "collaboration": 2.5
             }
           }
         ]

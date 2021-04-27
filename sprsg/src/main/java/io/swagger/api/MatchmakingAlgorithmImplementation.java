@@ -1,10 +1,24 @@
 package io.swagger.api;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.Writer;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
+import java.util.Scanner;
 
 import io.swagger.model.UserCollaborationIntentions;
 import io.swagger.model.UserCollaborationSpec;
@@ -39,7 +53,7 @@ public class MatchmakingAlgorithmImplementation {
 	float weight = 0;
 
 	public ArrayList<UserPairAssignment> final_pair(List<UserScore> list, List<UserPairwiseScore> list2,
-			List<UserCollaborationIntentions> list3) {
+			List<UserCollaborationIntentions> list3) throws IOException {
 
 		ArrayList<UtilityUser> global_utility = new ArrayList<UtilityUser>();
 		ArrayList<UtilityUser> utility_per_user = new ArrayList<UtilityUser>();
@@ -124,23 +138,48 @@ public class MatchmakingAlgorithmImplementation {
 		global_utility = utility_per_user_calculator(utility_per_user);
 /////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
 
+/////////// ~Sorting the arraylist~///////////////
+		Collections.sort(global_utility, (UtilityUser s1, UtilityUser s2) -> {
+			return s1.getUser_i().compareToIgnoreCase(s2.getUser_i());
+		});
+/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
+
 /////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
 		// global utility function
 //		System.out.println(global_utility.size());
 		temp_res = global_utilityFunc(global_utility);
 		// System.out.println(temp_res);
 
-		// global utility function
 		tettt = global_utilityFunc2(global_utility);
 		try {
-			maximize_lp(tettt);
+//			maximize_lp(tettt);
 		} catch (Exception e) {
 			System.out.println("Something went wrong: " + e);
 		}
+
+		String user_i, user_j;
+		String weight;
+		String x;
+		Scanner read = new Scanner(new File("../temp_file.txt"));
+		read.useDelimiter(",|\\n");
+
+		while (read.hasNext()) {
+			user_i = read.next().trim();
+			user_j = read.next().trim();
+			weight = read.next().trim();
+			x = read.next().trim();
+//			System.out.println(read.next().trim());
+			System.out.print(user_i + " " + user_j + " " + weight + " " + x + "\n");
+		}
+		System.out.println("Fucking Java");
+
+		read.close();
+
 /////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
 
 //		System.out.println("Final pairs(?): " + temp_res);
 		// it will return the results from tettt, not temp_res
+
 		return temp_res;
 	}
 
@@ -215,24 +254,24 @@ public class MatchmakingAlgorithmImplementation {
 			UtilityUser uu = new UtilityUser();
 			UtilityUser uu_2 = null;
 
-			//~~~~~
-			double tmp_wij=0;
-			double tmp_wji=0;
-			int tmp_xij=0;
-			int tmp_xji=0;
-			//~~~~~
-			
+			// ~~~~~
+			double tmp_wij = 0;
+			double tmp_wji = 0;
+			int tmp_xij = 0;
+			int tmp_xji = 0;
+			// ~~~~~
+
 			// Define columns
 			GLPK.glp_add_cols(lp, last_users.size());
 			// Create rows
 			GLPK.glp_add_rows(lp, last_users.size());
 			// Allocate memory
-			ind = GLPK.new_intArray( last_users.size()+1);
-			val = GLPK.new_doubleArray( last_users.size()+1);
+			ind = GLPK.new_intArray(last_users.size() + 1);
+			val = GLPK.new_doubleArray(last_users.size() + 1);
 			// Define objective
 			GLPK.glp_set_obj_name(lp, "fucking");
 			GLPK.glp_set_obj_dir(lp, GLPKConstants.GLP_MAX);
-			
+
 			for (int f = 0; f < last_users.size(); f++) {
 				uu = last_users.get(f);
 
@@ -240,44 +279,40 @@ public class MatchmakingAlgorithmImplementation {
 					uu_2 = last_users.get(g);
 
 //					if (uu.getUser_i().equals(uu_2.getUser_j())&& uu.getUser_j().equals(uu_2.getUser_i())) {
-						System.out.printf("%d %d \n", f, g);
-						tmp_wij=uu.getWeight();
-						tmp_wji=uu_2.getWeight();
-						tmp_xij=uu.getX();
-						tmp_xji=uu_2.getX();
+					System.out.printf("%d %d \n", f, g);
+					tmp_wij = uu.getWeight();
+					tmp_wji = uu_2.getWeight();
+					tmp_xij = uu.getX();
+					tmp_xji = uu_2.getX();
 //						System.out.printf("Weights: %s & %s: %f %f\n",uu.getUser_i(),uu_2.getUser_i(),tmp_wij,tmp_wji);
 //						System.out.printf("x: xij & xji: %d %d\n",tmp_xij,tmp_xji);
-						
-						
-						
-						GLPK.glp_set_col_name(lp, g, "x"+g);
-						GLPK.glp_set_col_kind(lp, g, GLPKConstants.GLP_IV);
-						GLPK.glp_set_col_bnds(lp, g, GLPKConstants.GLP_DB, 0, 1);
+
+					GLPK.glp_set_col_name(lp, g, "x" + g);
+					GLPK.glp_set_col_kind(lp, g, GLPKConstants.GLP_IV);
+					GLPK.glp_set_col_bnds(lp, g, GLPKConstants.GLP_DB, 0, 1);
 //						GLPK.glp_set_col_name(lp, 2, "x21");
 //						GLPK.glp_set_col_kind(lp, 2, GLPKConstants.GLP_IV);
 //						GLPK.glp_set_col_bnds(lp, 2, GLPKConstants.GLP_DB, 0, 1);
 
-						// Create constraints
+					// Create constraints
 
 					// Set row details
-						GLPK.glp_set_row_name(lp, g, ("c"+g));
-						GLPK.glp_set_row_bnds(lp, g, GLPKConstants.GLP_FX, 1.0, 1.0);
-						GLPK.intArray_setitem(ind, g, 1);
+					GLPK.glp_set_row_name(lp, g, ("c" + g));
+					GLPK.glp_set_row_bnds(lp, g, GLPKConstants.GLP_FX, 1.0, 1.0);
+					GLPK.intArray_setitem(ind, g, 1);
 //						GLPK.intArray_setitem(ind, 2, 2);
-						GLPK.doubleArray_setitem(val, g, 1.0);
+					GLPK.doubleArray_setitem(val, g, 1.0);
 //						GLPK.doubleArray_setitem(val, 2, 1);
-						GLPK.glp_set_mat_row(lp, g, 2, ind, val);
+					GLPK.glp_set_mat_row(lp, g, 2, ind, val);
 
+					// Define objective
 
-					
-						// Define objective
-						
-						GLPK.glp_set_obj_coef(lp, g, tmp_wij);
+					GLPK.glp_set_obj_coef(lp, g, tmp_wij);
 //						GLPK.glp_set_obj_coef(lp, 2, 1.69);
 
 //					}
 				}
-				
+
 			}
 			// Free memory
 			GLPK.delete_intArray(ind);
@@ -469,8 +504,6 @@ public class MatchmakingAlgorithmImplementation {
 
 			x_ij = rand.nextInt(2);
 
-
-
 			// Iterate through the List with the other players, a player has played
 			// to get the nested user
 			for (int d = 0; d < utility_per_user.size(); d++) {
@@ -495,12 +528,12 @@ public class MatchmakingAlgorithmImplementation {
 					tmp.setUser_j(uu_j.getUser_i());
 					tmp.setX(x_ij);
 
-					System.out.printf("%d %d\n", c, d);
-					System.out.printf("%d) Utility Per User Func: \n", c);
-					System.out.println(" User i: " + tmp.getUser_i());
-					System.out.println(" User j: " + tmp.getUser_j());
-					System.out.println(" Weight: " + tmp.getWeight());
-					System.out.println(" x_ij: " + tmp.getX());
+					// System.out.printf("%d %d\n", c, d);
+					// System.out.printf("%d) Utility Per User Func: \n", c);
+					// System.out.println(" User i: " + tmp.getUser_i());
+					// System.out.println(" User j: " + tmp.getUser_j());
+					// System.out.println(" Weight: " + tmp.getWeight());
+					// System.out.println(" x_ij: " + tmp.getX());
 
 					utility_user.add(tmp);
 
@@ -516,7 +549,8 @@ public class MatchmakingAlgorithmImplementation {
 		return utility_user;
 	}
 
-	private ArrayList<UserPairAssignment> global_utilityFunc(ArrayList<UtilityUser> global_utility) {
+	// TODO this function is to be removed, using global_utilityFunc2
+	private ArrayList<UserPairAssignment> global_utilityFunc(ArrayList<UtilityUser> global_utility) throws IOException {
 		ArrayList<UserPairAssignment> utility_pair = new ArrayList<UserPairAssignment>();
 		Random rand = new Random();
 		int x_ij = 0;
@@ -577,20 +611,95 @@ public class MatchmakingAlgorithmImplementation {
 
 		return utility_pair;
 	}
+//
+//	private ArrayList<UtilityUser> global_utilityFunc2(ArrayList<UtilityUser> global_utility) throws IOException {
+//
+//		ArrayList<UtilityUser> utility_user = new ArrayList<UtilityUser>();
+//
+//		int x_ij = 0;
+//		int x_ji = 0;
+//		UtilityUser uu = new UtilityUser();
+//		UtilityUser uu_j = new UtilityUser();
+//
+//		// Create the writer for the user dump
+//		FileWriter writer = new FileWriter("../temp_file.txt", false);
+//
+//		for (int e = 0; e < global_utility.size(); e++) {
+//			uu = global_utility.get(e);
+//			// for (UtilityUser uu : global_utility) {
+//
+//			UtilityUser tmp = new UtilityUser();
+//
+//			// check if uu.getWeight() !=0 x_ij=1 else 0
+//			x_ij = uu.getWeight() != 0 ? 1 : 0;
+//
+//			for (int q = 0; q < global_utility.size(); q++) {// for (int q = 0; q < global_utility.size(); q++) { //the
+//																// original is with q=0, got wrong iterrations
+//				uu_j = global_utility.get(q);
+//
+//				// check if uu.getWeight() !=0 x_ji=1 else 0
+//				x_ji = uu_j.getWeight() != 0 ? 1 : 0;
+//
+////				 System.out.println("~~~~~~~~~~~~~~~~~~~");
+////				 System.out.println("x_ij: " + x_ij + "\n" + "x_ji: " + x_ji);
+////				 System.out
+////					 .println("uu.getWeight(): " + uu.getWeight() + "\n" + "uu_j.getWeight(): " +
+////					 uu_j.getWeight());
+//
+//				if (x_ij == x_ji) {
+//
+//					tmp.setUser_i(uu.getUser_i());
+//					tmp.setUser_j(uu.getUser_j());
+//					tmp.setWeight(uu.getWeight());
+//					tmp.setX(x_ij);
+//					//tmp.setX(uu.getX());
+//
+//					// The output form of the users with comma "," as a delimiter
+//					// test1,test2,1.690000057220459,1
+//					// test2,test1,0.2800000309944153,1
+//					writer.append(uu.getUser_i());
+//					writer.append(",");
+//					writer.append(uu.getUser_j());
+//					writer.append(",");
+//					writer.append(Double.toString(uu.getWeight()));
+//					writer.append(",");
+//					writer.append(Integer.toString(uu.getX()));
+//					writer.append("\n");
+//
+//					utility_user.add(tmp);
+//
+//					break;
+//					
+//
+//				} else
+//
+//					continue;
+//
+//			}
+//
+//		}
+//		writer.flush();
+//		writer.close();
+//		return utility_user;
+//	}
+//	
 
-	private ArrayList<UtilityUser> global_utilityFunc2(ArrayList<UtilityUser> global_utility) {
+	private ArrayList<UtilityUser> global_utilityFunc2(ArrayList<UtilityUser> global_utility) throws IOException {
 
 		ArrayList<UtilityUser> utility_user = new ArrayList<UtilityUser>();
-		Random rand = new Random();
+
 		int x_ij = 0;
 		int x_ji = 0;
 		UtilityUser uu = new UtilityUser();
 		UtilityUser uu_j = new UtilityUser();
 
+		// Create the writer for the user dump
+		FileWriter writer = new FileWriter("../temp_file.txt", false);
+
 		for (int e = 0; e < global_utility.size(); e++) {
 			uu = global_utility.get(e);
 			// for (UtilityUser uu : global_utility) {
-			UserPairAssignment trial = new UserPairAssignment();
+
 			UtilityUser tmp = new UtilityUser();
 
 			// check if uu.getWeight() !=0 x_ij=1 else 0
@@ -611,14 +720,32 @@ public class MatchmakingAlgorithmImplementation {
 
 				if (x_ij == x_ji) {
 
-					tmp.setUser_i(uu.getUser_i());
-					tmp.setUser_j(uu.getUser_j());
-					tmp.setWeight(uu.getWeight());
-					tmp.setX(uu.getX());
+					if (uu.getUser_i().equals(uu_j.getUser_j()) && uu.getUser_j().equals(uu_j.getUser_i())
+							&& uu.getX() == uu_j.getX()) {
 
-					utility_user.add(tmp);
+						tmp.setUser_i(uu.getUser_i());
+						tmp.setUser_j(uu.getUser_j());
+						tmp.setWeight(uu.getWeight());
+						tmp.setX(1);
+						// tmp.setX(uu.getX());
 
-					break;
+						// The output form of the users with comma "," as a delimiter
+						// test1,test2,1.690000057220459,1
+						// test2,test1,0.2800000309944153,1
+						writer.append(uu.getUser_i());
+						writer.append(",");
+						writer.append(uu.getUser_j());
+						writer.append(",");
+						writer.append(Double.toString(uu.getWeight()));
+						writer.append(",");
+						writer.append(Integer.toString(1));
+						writer.append("\n");
+
+						utility_user.add(tmp);
+
+						break;
+					} else
+						continue;
 
 				} else
 
@@ -627,7 +754,8 @@ public class MatchmakingAlgorithmImplementation {
 			}
 
 		}
-
+		writer.flush();
+		writer.close();
 		return utility_user;
 	}
 
