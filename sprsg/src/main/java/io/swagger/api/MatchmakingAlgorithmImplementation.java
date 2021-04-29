@@ -698,7 +698,6 @@ public class MatchmakingAlgorithmImplementation {
 
 		for (int e = 0; e < global_utility.size(); e++) {
 			uu = global_utility.get(e);
-			// for (UtilityUser uu : global_utility) {
 
 			UtilityUser tmp = new UtilityUser();
 
@@ -720,32 +719,46 @@ public class MatchmakingAlgorithmImplementation {
 
 				if (x_ij == x_ji) {
 
-					if (uu.getUser_i().equals(uu_j.getUser_j()) && uu.getUser_j().equals(uu_j.getUser_i())
-							&& uu.getX() == uu_j.getX()) {
-
-						tmp.setUser_i(uu.getUser_i());
-						tmp.setUser_j(uu.getUser_j());
-						tmp.setWeight(uu.getWeight());
-						tmp.setX(1);
-						// tmp.setX(uu.getX());
-
-						// The output form of the users with comma "," as a delimiter
-						// test1,test2,1.690000057220459,1
-						// test2,test1,0.2800000309944153,1
-						writer.append(uu.getUser_i());
-						writer.append(",");
-						writer.append(uu.getUser_j());
-						writer.append(",");
-						writer.append(Double.toString(uu.getWeight()));
-						writer.append(",");
-						writer.append(Integer.toString(1));
+//					if ((uu.getUser_i().equals(uu_j.getUser_j()) && uu.getUser_j().equals(uu_j.getUser_i()))
+//							&& uu.getX() == uu_j.getX()) {
+					writer.append(uu.getUser_i());
+					writer.append(",");
+					writer.append(uu.getUser_j());
+					writer.append(",");
+					writer.append(Double.toString(uu.getWeight()));
+					writer.append(",");
+					
+					if (uu.getUser_i().equals(uu_j.getUser_i()) && uu.getX() == 1) {
+						System.out.println("kati egine edw");
+						writer.append("1");
 						writer.append("\n");
+					}else   {
+						writer.append("0");
+						writer.append("\n");
+					}
+					tmp.setUser_i(uu.getUser_i());
+					tmp.setUser_j(uu.getUser_j());
+					tmp.setWeight(uu.getWeight());
+					tmp.setX(uu.getX());
+					// tmp.setX(uu.getX());
 
-						utility_user.add(tmp);
+					// The output form of the users with comma "," as a delimiter
+					// test1,test2,1.690000057220459,1
+					// test2,test1,0.2800000309944153,1
+//					writer.append(uu.getUser_i());
+//					writer.append(",");
+//					writer.append(uu.getUser_j());
+//					writer.append(",");
+//					writer.append(Double.toString(uu.getWeight()));
+//					writer.append(",");
+//					writer.append(Integer.toString(uu.getX()));
+//					writer.append("\n");
 
-						break;
-					} else
-						continue;
+					utility_user.add(tmp);
+
+					break;
+//					} else
+//						continue;
 
 				} else
 
