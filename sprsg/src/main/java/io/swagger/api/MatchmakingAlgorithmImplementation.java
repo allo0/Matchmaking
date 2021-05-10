@@ -152,7 +152,7 @@ public class MatchmakingAlgorithmImplementation {
 
 		tettt = global_utilityFunc2(global_utility);
 		try {
-//			maximize_lp(tettt);
+			maximize_lp(tettt);
 		} catch (Exception e) {
 			System.out.println("Something went wrong: " + e);
 		}
@@ -254,69 +254,63 @@ public class MatchmakingAlgorithmImplementation {
 			UtilityUser uu = new UtilityUser();
 			UtilityUser uu_2 = null;
 
-			// ~~~~~
-			double tmp_wij = 0;
-			double tmp_wji = 0;
-			int tmp_xij = 0;
-			int tmp_xji = 0;
-			// ~~~~~
-
 			// Define columns
 			GLPK.glp_add_cols(lp, last_users.size());
 			// Create rows
 			GLPK.glp_add_rows(lp, last_users.size());
-			// Allocate memory
-			ind = GLPK.new_intArray(last_users.size() + 1);
-			val = GLPK.new_doubleArray(last_users.size() + 1);
+			
+
 			// Define objective
 			GLPK.glp_set_obj_name(lp, "fucking");
 			GLPK.glp_set_obj_dir(lp, GLPKConstants.GLP_MAX);
 
-			for (int f = 0; f < last_users.size(); f++) {
-				uu = last_users.get(f);
+			for (int i = 0; i < last_users.size(); i++) {
+				
 
-				for (int g = 0; g < last_users.size(); g++) {
-					uu_2 = last_users.get(g);
-
-//					if (uu.getUser_i().equals(uu_2.getUser_j())&& uu.getUser_j().equals(uu_2.getUser_i())) {
-					System.out.printf("%d %d \n", f, g);
-					tmp_wij = uu.getWeight();
-					tmp_wji = uu_2.getWeight();
-					tmp_xij = uu.getX();
-					tmp_xji = uu_2.getX();
-//						System.out.printf("Weights: %s & %s: %f %f\n",uu.getUser_i(),uu_2.getUser_i(),tmp_wij,tmp_wji);
-//						System.out.printf("x: xij & xji: %d %d\n",tmp_xij,tmp_xji);
-
-					GLPK.glp_set_col_name(lp, g, "x" + g);
-					GLPK.glp_set_col_kind(lp, g, GLPKConstants.GLP_IV);
-					GLPK.glp_set_col_bnds(lp, g, GLPKConstants.GLP_DB, 0, 1);
-//						GLPK.glp_set_col_name(lp, 2, "x21");
-//						GLPK.glp_set_col_kind(lp, 2, GLPKConstants.GLP_IV);
-//						GLPK.glp_set_col_bnds(lp, 2, GLPKConstants.GLP_DB, 0, 1);
-
-					// Create constraints
-
-					// Set row details
-					GLPK.glp_set_row_name(lp, g, ("c" + g));
-					GLPK.glp_set_row_bnds(lp, g, GLPKConstants.GLP_FX, 1.0, 1.0);
-					GLPK.intArray_setitem(ind, g, 1);
-//						GLPK.intArray_setitem(ind, 2, 2);
-					GLPK.doubleArray_setitem(val, g, 1.0);
-//						GLPK.doubleArray_setitem(val, 2, 1);
-					GLPK.glp_set_mat_row(lp, g, 2, ind, val);
-
-					// Define objective
-
-					GLPK.glp_set_obj_coef(lp, g, tmp_wij);
-//						GLPK.glp_set_obj_coef(lp, 2, 1.69);
-
-//					}
-				}
+				// Define columns
+				GLPK.glp_set_col_name(lp, i + 1, "x" + (i + 1));
+				GLPK.glp_set_col_kind(lp, i + 1, GLPKConstants.GLP_IV);
+				GLPK.glp_set_col_bnds(lp, i + 1, GLPKConstants.GLP_DB, 0, 1);
 
 			}
-			// Free memory
-			GLPK.delete_intArray(ind);
-			GLPK.delete_doubleArray(val);
+			for (int i = 0; i < last_users.size(); i++) {
+				
+				uu = last_users.get(i);
+				
+				// Allocate memory
+				ind = GLPK.new_intArray(last_users.size());
+				val = GLPK.new_doubleArray(last_users.size());
+				
+				// Set row details
+				GLPK.glp_set_row_name(lp, i + 1, "c" + (i + 1));
+				GLPK.glp_set_row_bnds(lp, i + 1, GLPKConstants.GLP_FX, 1.0, 1.0);
+				for (int j =0; j<last_users.size();j++) {
+//					uu_2 = last_users.get(j);
+//					if (uu.getUser_i().equals(uu_2.getUser_j()) && uu.getUser_j().equals(uu_2.getUser_i())) {
+					GLPK.intArray_setitem(ind, j + 1, j + 1);
+					GLPK.intArray_setitem(ind, i + 1, i + 1);
+					GLPK.doubleArray_setitem(val, j+ 1, (double)uu.getX());
+					GLPK.doubleArray_setitem(val, i +1, (double)uu.getX());
+//					}
+//					else 
+//						continue;
+				}
+				
+			
+				
+			
+				GLPK.glp_set_mat_row(lp, i + 1, last_users.size(), ind, val);
+
+				// Free memory
+				GLPK.delete_intArray(ind);
+				GLPK.delete_doubleArray(val);
+
+			}
+			for (int i = 0; i < last_users.size(); i++) {
+				uu = last_users.get(i);
+
+				GLPK.glp_set_obj_coef(lp, i + 1, uu.getWeight());
+			}
 
 //			// Define columns
 //			GLPK.glp_add_cols(lp, 2);
@@ -727,12 +721,12 @@ public class MatchmakingAlgorithmImplementation {
 					writer.append(",");
 					writer.append(Double.toString(uu.getWeight()));
 					writer.append(",");
-					
+
 					if (uu.getUser_i().equals(uu_j.getUser_i()) && uu.getX() == 1) {
-						System.out.println("kati egine edw");
+						
 						writer.append("1");
 						writer.append("\n");
-					}else   {
+					} else {
 						writer.append("0");
 						writer.append("\n");
 					}
