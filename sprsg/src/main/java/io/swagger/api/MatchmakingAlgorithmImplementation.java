@@ -249,7 +249,7 @@ public class MatchmakingAlgorithmImplementation {
 			// Create problem
 			lp = GLPK.glp_create_prob();
 			System.out.println("Problem created");
-			GLPK.glp_set_prob_name(lp, "myProblem");
+			GLPK.glp_set_prob_name(lp, "Cyka");
 
 			UtilityUser uu = new UtilityUser();
 			UtilityUser uu_2 = null;
@@ -261,7 +261,7 @@ public class MatchmakingAlgorithmImplementation {
 			
 
 			// Define objective
-			GLPK.glp_set_obj_name(lp, "fucking");
+			GLPK.glp_set_obj_name(lp, "blyat");
 			GLPK.glp_set_obj_dir(lp, GLPKConstants.GLP_MAX);
 
 			for (int i = 0; i < last_users.size(); i++) {
@@ -281,12 +281,14 @@ public class MatchmakingAlgorithmImplementation {
 				ind = GLPK.new_intArray(last_users.size());
 				val = GLPK.new_doubleArray(last_users.size());
 				
-				// Set row details
-				GLPK.glp_set_row_name(lp, i + 1, "c" + (i + 1));
-				GLPK.glp_set_row_bnds(lp, i + 1, GLPKConstants.GLP_FX, 1.0, 1.0);
+				
 				for (int j =0; j<last_users.size();j++) {
-//					uu_2 = last_users.get(j);
+					uu_2 = last_users.get(j);
+					System.out.println(uu_2.getUser_i());
 //					if (uu.getUser_i().equals(uu_2.getUser_j()) && uu.getUser_j().equals(uu_2.getUser_i())) {
+					// Set row details
+					GLPK.glp_set_row_name(lp, j + 1, "c" + (j + 1));
+					GLPK.glp_set_row_bnds(lp, j + 1, GLPKConstants.GLP_FX, 0, 1.0);
 					GLPK.intArray_setitem(ind, j + 1, j + 1);
 					GLPK.intArray_setitem(ind, i + 1, i + 1);
 					GLPK.doubleArray_setitem(val, j+ 1, (double)uu.getX());
@@ -295,9 +297,6 @@ public class MatchmakingAlgorithmImplementation {
 //					else 
 //						continue;
 				}
-				
-			
-				
 			
 				GLPK.glp_set_mat_row(lp, i + 1, last_users.size(), ind, val);
 
