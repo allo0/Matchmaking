@@ -287,6 +287,7 @@ public class MatchmakingAlgorithmImplementation {
 					System.out.println(uu_2.getUser_i());
 //					if (uu.getUser_i().equals(uu_2.getUser_j()) && uu.getUser_j().equals(uu_2.getUser_i())) {
 					// Set row details
+					
 					GLPK.glp_set_row_name(lp, j + 1, "c" + (j + 1));
 					GLPK.glp_set_row_bnds(lp, j + 1, GLPKConstants.GLP_FX, 0, 1.0);
 					GLPK.intArray_setitem(ind, j + 1, j + 1);
