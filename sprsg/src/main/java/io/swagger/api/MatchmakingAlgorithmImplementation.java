@@ -14,8 +14,10 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
@@ -51,6 +53,10 @@ public class MatchmakingAlgorithmImplementation {
 	boolean played_again = false;
 	String intentions;
 	float weight = 0;
+	int users_count = 0;
+
+	Integer[][] x_for_players;
+	Double[][] weight_for_players;
 
 	public ArrayList<UserPairAssignment> final_pair(List<UserScore> list, List<UserPairwiseScore> list2,
 			List<UserCollaborationIntentions> list3) throws IOException {
@@ -61,6 +67,19 @@ public class MatchmakingAlgorithmImplementation {
 		ArrayList<UtilityUser> tettt = new ArrayList<UtilityUser>();
 		UserScore us = new UserScore();
 		UtilityUser utility_user;
+
+		users_count = list.size();
+		x_for_players = new Integer[users_count][users_count];
+		weight_for_players = new Double[users_count][users_count];
+		// Initialize both arrays as null
+		for (int i = 0; i < users_count; i++) {
+			for (int j = 0; j < users_count; j++) {
+//				if(i==j && (i!=0 && j!=0))
+//					continue;
+				x_for_players[i][j] = null;
+				weight_for_players[i][j] = null;
+			}
+		}
 
 		System.out.println("------------------------------------");
 		System.out.println("Main");
@@ -124,25 +143,23 @@ public class MatchmakingAlgorithmImplementation {
 					continue;
 
 			}
-//		    progressPercentage(a, list2.size());
-//		    try {
-//		        Thread.sleep(500);
-//		    } catch (Exception e) {
-//		    }
 
 		}
+/////////// ~Sorting the arraylist~///////////////
+//		Collections.sort(utility_per_user, (UtilityUser s1, UtilityUser s2) -> {
+//			return s1.getUser_i().compareToIgnoreCase(s2.getUser_i());
+//		});
+/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
 
 /////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
 		// call utility per user, to get the utility of each player
 		// with all others he has played with
 		global_utility = utility_per_user_calculator(utility_per_user);
 /////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
-
-/////////// ~Sorting the arraylist~///////////////
-		Collections.sort(global_utility, (UtilityUser s1, UtilityUser s2) -> {
-			return s1.getUser_i().compareToIgnoreCase(s2.getUser_i());
-		});
-/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
+		for (int i = 0; i < global_utility.size(); i++) {
+			System.out.print(global_utility.get(i).getUser_i() + " " + global_utility.get(i).getUser_j() + "\n");
+		}
+		System.out.println();
 
 /////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
 		// global utility function
@@ -152,7 +169,7 @@ public class MatchmakingAlgorithmImplementation {
 
 		tettt = global_utilityFunc2(global_utility);
 		try {
-			maximize_lp(tettt);
+//			maximize_lp(tettt);
 		} catch (Exception e) {
 			System.out.println("Something went wrong: " + e);
 		}
@@ -173,6 +190,16 @@ public class MatchmakingAlgorithmImplementation {
 		}
 		System.out.println("Fucking Java");
 
+		for (int i = 0; i < users_count; i++) {
+			for (int j = 0; j < users_count; j++) {
+
+//			System.out.print(x_for_players[i][j] + " ");
+				System.out.print(weight_for_players[i][j] + " ");
+			}
+			System.out.println();
+
+		}
+
 		read.close();
 
 /////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
@@ -184,61 +211,6 @@ public class MatchmakingAlgorithmImplementation {
 	}
 
 	private void maximize_lp(ArrayList<UtilityUser> last_users) {
-
-		/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
-
-//		UtilityUser uu = new UtilityUser();
-//		UtilityUser uu_2 = null;
-//		int temp = 0;
-//		LPWizard lp = new LPWizard();
-//		for (int f = 0; f < last_users.size(); f++) {
-//			uu = last_users.get(f);
-//
-//			for (int g = f; g < last_users.size(); g++) {
-//				uu_2 = last_users.get(g);
-//
-//				if (uu.getUser_i().equals(uu_2.getUser_j())) {
-//
-//					// add as objects in the maximize problem, each user with his weight
-////					System.out.println(uu_2.getWeight());
-//					lp.plus(uu.getUser_i(), uu.getWeight()).plus(uu_2.getUser_i(), uu_2.getWeight());
-//
-//					// add the constraints necessary
-//					// for each pair:
-//
-//					lp.addConstraint("c" + temp, 1, "<=").plus(uu.getUser_i(), 1.0).plus(uu_2.getUser_i(), 1.0)
-//							.setAllVariablesBoolean();
-//					lp.addConstraint("c" + (temp + 1), 1, ">=").plus(uu.getUser_i(), 1.0).setAllVariablesBoolean();
-//					lp.addConstraint("c" + (temp + 2), 1, ">=").plus(uu_2.getUser_i(), 1.0).setAllVariablesBoolean();
-//
-//					temp++;
-//
-//					continue;
-//				} else {
-//					continue;
-//				}
-//
-//			}
-//
-//		}
-//		lp.setMinProblem(false);
-//		System.out.println(lp.solve());
-////		System.out.println(lp.getLP().getIndexmap());
-//		System.out.println(lp.getLP().convertToCPLEX());
-
-		/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
-
-		// Maximize z = 0.28 * x12 + 1.69 * x21
-		// subject to
-		// x12=1
-		// where
-		// 0 <= x12 <= 1
-
-		//
-		// subject to
-		// 0.0 <= x1 - .5 * x2 <= 0.2
-		// -x2 + x3 <= 0.4
-		// where,
 
 		glp_prob lp;
 		glp_smcp parm;
@@ -258,14 +230,12 @@ public class MatchmakingAlgorithmImplementation {
 			GLPK.glp_add_cols(lp, last_users.size());
 			// Create rows
 			GLPK.glp_add_rows(lp, last_users.size());
-			
 
 			// Define objective
 			GLPK.glp_set_obj_name(lp, "blyat");
 			GLPK.glp_set_obj_dir(lp, GLPKConstants.GLP_MAX);
 
 			for (int i = 0; i < last_users.size(); i++) {
-				
 
 				// Define columns
 				GLPK.glp_set_col_name(lp, i + 1, "x" + (i + 1));
@@ -273,32 +243,28 @@ public class MatchmakingAlgorithmImplementation {
 				GLPK.glp_set_col_bnds(lp, i + 1, GLPKConstants.GLP_DB, 0, 1);
 
 			}
+
 			for (int i = 0; i < last_users.size(); i++) {
-				
+
 				uu = last_users.get(i);
-				
+
 				// Allocate memory
 				ind = GLPK.new_intArray(last_users.size());
 				val = GLPK.new_doubleArray(last_users.size());
-				
-				
-				for (int j =0; j<last_users.size();j++) {
+
+				for (int j = 0; j < last_users.size(); j++) {
 					uu_2 = last_users.get(j);
-					System.out.println(uu_2.getUser_i());
-//					if (uu.getUser_i().equals(uu_2.getUser_j()) && uu.getUser_j().equals(uu_2.getUser_i())) {
+
 					// Set row details
-					
 					GLPK.glp_set_row_name(lp, j + 1, "c" + (j + 1));
 					GLPK.glp_set_row_bnds(lp, j + 1, GLPKConstants.GLP_FX, 0, 1.0);
 					GLPK.intArray_setitem(ind, j + 1, j + 1);
 					GLPK.intArray_setitem(ind, i + 1, i + 1);
-					GLPK.doubleArray_setitem(val, j+ 1, (double)uu.getX());
-					GLPK.doubleArray_setitem(val, i +1, (double)uu.getX());
-//					}
-//					else 
-//						continue;
+					GLPK.doubleArray_setitem(val, j + 1, (double) uu.getX());
+					GLPK.doubleArray_setitem(val, i + 1, (double) uu.getX());
+
 				}
-			
+
 				GLPK.glp_set_mat_row(lp, i + 1, last_users.size(), ind, val);
 
 				// Free memory
@@ -306,6 +272,7 @@ public class MatchmakingAlgorithmImplementation {
 				GLPK.delete_doubleArray(val);
 
 			}
+
 			for (int i = 0; i < last_users.size(); i++) {
 				uu = last_users.get(i);
 
@@ -373,6 +340,7 @@ public class MatchmakingAlgorithmImplementation {
 		}
 
 		System.out.println("The calculations ended . . .\n");
+
 	}
 
 	/**
@@ -483,7 +451,8 @@ public class MatchmakingAlgorithmImplementation {
 
 		ArrayList<UtilityUser> utility_user = new ArrayList<UtilityUser>();
 		Random rand = new Random();
-
+		
+		
 		int x_ij = 0;
 		UtilityUser uu = new UtilityUser();
 		UtilityUser uu_j = new UtilityUser();
@@ -498,20 +467,12 @@ public class MatchmakingAlgorithmImplementation {
 
 			x_ij = rand.nextInt(2);
 
+		
 			// Iterate through the List with the other players, a player has played
 			// to get the nested user
 			for (int d = 0; d < utility_per_user.size(); d++) {
 				UtilityUser tmp = new UtilityUser();
 				uu_j = utility_per_user.get(d);
-
-				// ∑_j,j≠i x_(i,j)=1
-//				if (x_ij == 0 && (uu.getUser_i() != uu_j.getUser_j())) {/////////////////////
-//
-//					x_ij = 1; // αυτο να αλλαξει μολις δω πως παιρνει τιμές το x
-//				} else if (x_ij == 1 && (uu.getUser_i() != uu_j.getUser_j())) {
-//					// x_ij = 1; // αυτο να αλλαξει μολις δω πως παιρνει τιμές το x
-//
-//				}
 
 				// if the pair (nested outter ) matches
 				// add the new pair ij to the arraylist
@@ -522,21 +483,24 @@ public class MatchmakingAlgorithmImplementation {
 					tmp.setUser_j(uu_j.getUser_i());
 					tmp.setX(x_ij);
 
-					// System.out.printf("%d %d\n", c, d);
-					// System.out.printf("%d) Utility Per User Func: \n", c);
-					// System.out.println(" User i: " + tmp.getUser_i());
-					// System.out.println(" User j: " + tmp.getUser_j());
-					// System.out.println(" Weight: " + tmp.getWeight());
-					// System.out.println(" x_ij: " + tmp.getX());
+					System.out.printf("%d %d\n", c, d);
+					System.out.printf("%d) Utility Per User Func: \n", c);
+					System.out.println(" User i: " + tmp.getUser_i());
+					System.out.println(" User j: " + tmp.getUser_j());
+					System.out.println(" Weight: " + tmp.getWeight());
+					System.out.println(" x_ij: " + tmp.getX());
 
 					utility_user.add(tmp);
 
+					
+					
+					
 					break;
 				}
-
 				// reset the counter
 //				x_ij = 0;
 			}
+			
 
 		}
 
@@ -715,38 +679,32 @@ public class MatchmakingAlgorithmImplementation {
 
 //					if ((uu.getUser_i().equals(uu_j.getUser_j()) && uu.getUser_j().equals(uu_j.getUser_i()))
 //							&& uu.getX() == uu_j.getX()) {
+
+					// The output form of the users with comma "," as a delimiter
+					// test1,test2,1.690000057220459,1
+					// test2,test1,0.2800000309944153,1
 					writer.append(uu.getUser_i());
 					writer.append(",");
 					writer.append(uu.getUser_j());
 					writer.append(",");
 					writer.append(Double.toString(uu.getWeight()));
 					writer.append(",");
+					writer.append(Integer.toString(uu.getX()));
+					writer.append("\n");
 
-					if (uu.getUser_i().equals(uu_j.getUser_i()) && uu.getX() == 1) {
-						
-						writer.append("1");
-						writer.append("\n");
-					} else {
-						writer.append("0");
-						writer.append("\n");
-					}
+//					if (uu.getUser_i().equals(uu_j.getUser_i()) && uu.getX() == 1) {
+//
+//						writer.append("1");
+//						writer.append("\n");
+//					} else {
+//						writer.append("0");
+//						writer.append("\n");
+//					}
 					tmp.setUser_i(uu.getUser_i());
 					tmp.setUser_j(uu.getUser_j());
 					tmp.setWeight(uu.getWeight());
 					tmp.setX(uu.getX());
 					// tmp.setX(uu.getX());
-
-					// The output form of the users with comma "," as a delimiter
-					// test1,test2,1.690000057220459,1
-					// test2,test1,0.2800000309944153,1
-//					writer.append(uu.getUser_i());
-//					writer.append(",");
-//					writer.append(uu.getUser_j());
-//					writer.append(",");
-//					writer.append(Double.toString(uu.getWeight()));
-//					writer.append(",");
-//					writer.append(Integer.toString(uu.getX()));
-//					writer.append("\n");
 
 					utility_user.add(tmp);
 
@@ -761,9 +719,40 @@ public class MatchmakingAlgorithmImplementation {
 			}
 
 		}
+
 		writer.flush();
 		writer.close();
 		return utility_user;
+	}
+
+	public void array_creator(int point_x, int point_y, int x, double weight) {
+
+		if (point_x == point_y) {
+			x_for_players[point_x][point_y] = -1;
+			weight_for_players[point_x][point_y] = -100.;
+
+		} else {
+			x_for_players[point_x][point_y] = x;
+			weight_for_players[point_x][point_y] = weight;
+		}
+
+//		for (int i = 0; i < users_count; i++) {
+//			for (int j = 0; j < users_count; j++) {
+//				if (i == j) {
+//					x_for_players[i][j] = -1;
+//					weight_for_players[i][j] = -100.;
+//
+//				} else {
+//					x_for_players[i][j] = 1;
+//					weight_for_players[i][j] = 5.;
+//				}
+////				System.out.print(x_for_players[i][j] + " ");
+//				System.out.print(weight_for_players[i][j] + " ");
+//			}
+//			System.out.println();
+//
+//		}
+
 	}
 
 }
