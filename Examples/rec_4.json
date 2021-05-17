@@ -1,27 +1,27 @@
   {
   "userGlobalScores": [
       {
-        "userId": "test1",
+        "userId": "topas404",
         "score": {
           "quality": 3.8,
           "collaboration": 4.1
         }
       },
       {
-        "userId": "test2",
+        "userId": "vangellatos",
         "score": {
           "quality": 4.9,
           "collaboration": 2.1
         }
       },{
-        "userId": "test3",
+        "userId": "thori",
         "score": {
           "quality": 2.8,
           "collaboration": 1.1
         }
       },
         {
-        "userId": "test4",
+        "userId": "exospan",
         "score": {
           "quality": 3.5,
           "collaboration": 1.5
@@ -30,10 +30,10 @@
   ],
   "userPairwiseScore": [
       {
-        "gradingUser": "test1",
+        "gradingUser": "topas404",
         "scoresGiven": [
           {
-            "userId": "test2",
+            "userId": "vangellatos",
             "score": {
               "quality": 3.8,
               "collaboration": 4.1
@@ -42,10 +42,10 @@
         ]
       },
       {
-        "gradingUser": "test3",
+        "gradingUser": "thori",
         "scoresGiven": [
           {
-            "userId": "test1",
+            "userId": "topas404",
             "score": {
               "quality": 2.8,
               "collaboration": 4.1
@@ -53,10 +53,10 @@
           }
         ]
       },{
-        "gradingUser": "test1",
+        "gradingUser": "topas404",
         "scoresGiven": [
           {
-            "userId": "test3",
+            "userId": "thori",
             "score": {
               "quality": 3.5,
               "collaboration": 2.5
@@ -65,10 +65,10 @@
         ]
       },
       {
-        "gradingUser": "test2",
+        "gradingUser": "vangellatos",
         "scoresGiven": [
           {
-            "userId": "test1",
+            "userId": "topas404",
             "score": {
               "quality": 4.9,
               "collaboration": 2.1
@@ -77,10 +77,10 @@
         ]
       },
       {
-        "gradingUser": "test4",
+        "gradingUser": "exospan",
         "scoresGiven": [
           {
-            "userId": "test2",
+            "userId": "vangellatos",
             "score": {
               "quality": 4.9,
               "collaboration": 2.1
@@ -89,10 +89,10 @@
         ]
       },
       {
-        "gradingUser": "test2",
+        "gradingUser": "vangellatos",
         "scoresGiven": [
           {
-            "userId": "test4",
+            "userId": "exospan",
             "score": {
               "quality": 4.9,
               "collaboration": 2.1
@@ -103,54 +103,54 @@
   ],
   "userCollaborationIntentions": [
       {
-        "gradingUser": "test1",
+        "gradingUser": "topas404",
         "intentions": [
           {
-            "userId": "test2",
+            "userId": "vangellatos",
             "intention": "want"
           }
         ]
       },
       {
-        "gradingUser": "test2",
+        "gradingUser": "vangellatos",
         "intentions": [
           {
-            "userId": "test4",
+            "userId": "exospan",
             "intention": "idc"
           }
         ]
       },
       {
-        "gradingUser": "test2",
+        "gradingUser": "vangellatos",
         "intentions": [
           {
-            "userId": "test1",
+            "userId": "topas404",
             "intention": "want"
           }
         ]
       }, {
-        "gradingUser": "test3",
+        "gradingUser": "thori",
         "intentions": [
           {
-            "userId": "test1",
+            "userId": "topas404",
             "intention": "dwant"
           }
         ]
       },
       {
-        "gradingUser": "test4",
+        "gradingUser": "exospan",
         "intentions": [
           {
-            "userId": "test2",
+            "userId": "vangellatos",
             "intention": "want"
           }
         ]
       },
       {
-        "gradingUser": "test1",
+        "gradingUser": "topas404",
         "intentions": [
           {
-            "userId": "test3",
+            "userId": "thori",
             "intention": "idc"
           }
         ]

@@ -1,14 +1,14 @@
 {
   "userGlobalScores": [
       {
-        "userId": "test1",
+        "userId": "topas404",
         "score": {
           "quality": 3.8,
           "collaboration": 4.1
         }
       },
       {
-        "userId": "test2",
+        "userId": "theoden",
         "score": {
           "quality": 4.9,
           "collaboration": 2.1
@@ -17,10 +17,10 @@
   ],
   "userPairwiseScore": [
       {
-        "gradingUser": "test1",
+        "gradingUser": "topas404",
         "scoresGiven": [
           {
-            "userId": "test2",
+            "userId": "theoden",
             "score": {
               "quality": 3.8,
               "collaboration": 4.0
@@ -29,10 +29,10 @@
         ]
       },
       {
-        "gradingUser": "test2",
+        "gradingUser": "theoden",
         "scoresGiven": [
           {
-            "userId": "test1",
+            "userId": "topas404",
             "score": {
               "quality": 4.9,
               "collaboration": 2.0
@@ -43,19 +43,19 @@
   ],
   "userCollaborationIntentions": [
       {
-        "gradingUser": "test1",
+        "gradingUser": "topas404",
         "intentions": [
           {
-            "userId": "test2",
+            "userId": "theoden",
             "intention": "idc"
           }
         ]
       },
       {
-        "gradingUser": "test2",
+        "gradingUser": "theoden",
         "intentions": [
           {
-            "userId": "test1",
+            "userId": "topas404",
             "intention": "want"
           }
         ]
