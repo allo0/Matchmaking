@@ -37,7 +37,7 @@ public class MatchmakingApiController implements MatchmakingApi {
 	}
 
 	public ResponseEntity<List<UserPairAssignment>> matchmakingPost(
-			@ApiParam(value = "The body is a JSON structure having the following parts (a) global user score (b) pairwise user scores and (c) user-to-user collaboration intentions. The output of the computation is a user pair assignment matrix.", required = true) @Valid @RequestBody Body body) {
+			@ApiParam(value = "The body is a JSON structure having the following parts {a} global user score {b} pairwise user scores and {c} user-to-user collaboration intentions. The output of the computation is a user pair assignment matrix.", required = true) @Valid @RequestBody Body body) {
 		String accept = request.getHeader("Accept");
 		if (accept != null && accept.contains("application/json")) {
 			ArrayList<UserPairAssignment> result = new ArrayList<UserPairAssignment>();

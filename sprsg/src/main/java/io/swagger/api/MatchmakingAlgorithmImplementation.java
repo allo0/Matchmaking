@@ -160,6 +160,7 @@ public class MatchmakingAlgorithmImplementation {
 			System.out.print(global_utility.get(i).getUser_i() + " " + global_utility.get(i).getUser_j() + "\n");
 		}
 		System.out.println();
+		System.out.println(global_utility.size());
 
 /////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
 		// global utility function
@@ -188,13 +189,22 @@ public class MatchmakingAlgorithmImplementation {
 //			System.out.println(read.next().trim());
 			System.out.print(user_i + " " + user_j + " " + weight + " " + x + "\n");
 		}
-		System.out.println("Fucking Java");
-
+		
 		for (int i = 0; i < users_count; i++) {
 			for (int j = 0; j < users_count; j++) {
 
 //			System.out.print(x_for_players[i][j] + " ");
 				System.out.print(weight_for_players[i][j] + " ");
+			}
+			System.out.println();
+
+		}
+		System.out.println("~~~~~~");
+		for (int i = 0; i < users_count; i++) {
+			for (int j = 0; j < users_count; j++) {
+
+			System.out.print(x_for_players[i][j] + " ");
+
 			}
 			System.out.println();
 
@@ -493,7 +503,7 @@ public class MatchmakingAlgorithmImplementation {
 					utility_user.add(tmp);
 
 					
-					
+//					array_creator(c,d,tmp.getX(),tmp.getWeight());
 					
 					break;
 				}
