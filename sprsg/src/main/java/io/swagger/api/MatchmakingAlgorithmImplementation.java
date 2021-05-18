@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
@@ -29,7 +30,7 @@ public class MatchmakingAlgorithmImplementation {
 	boolean played_again = false;
 	String intentions;
 	float weight = 0;
-	
+
 	int users_count = 0;
 	Integer[][] x_for_players;
 	Double[][] weight_for_players;
@@ -43,11 +44,11 @@ public class MatchmakingAlgorithmImplementation {
 		ArrayList<UtilityUser> tettt = new ArrayList<UtilityUser>();
 		UserScore us = new UserScore();
 		UtilityUser utility_user;
-		
-		//Testing
-		//Create the arrays for the weight and the x_ij of the players
-		//initialized with null so as if the size of the UserPairwiseScore is < 
-		//than the UserScore we can somehow use it in the maximization problem
+
+		// Testing
+		// Create the arrays for the weight and the x_ij of the players
+		// initialized with null so as if the size of the UserPairwiseScore is <
+		// than the UserScore we can somehow use it in the maximization problem
 		users_count = list.size();
 		x_for_players = new Integer[users_count][users_count];
 		weight_for_players = new Double[users_count][users_count];
@@ -133,19 +134,18 @@ public class MatchmakingAlgorithmImplementation {
 /////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
 
 /////////// ~Sorting the arraylist~///////////////
-//		Collections.sort(utility_per_user, (UtilityUser s1, UtilityUser s2) -> {
-//			return s1.getUser_i().compareToIgnoreCase(s2.getUser_i());
-//		});
+		Collections.sort(global_utility, (UtilityUser s1, UtilityUser s2) -> {
+			return s1.getUser_i().compareToIgnoreCase(s2.getUser_i());
+		});
 /////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
 
 /////////// ~~~~~global utility function~~~~~~///////////////
 
 		temp_res = global_utilityFunc(global_utility);
 
-
 		tettt = global_utilityFunc2(global_utility);
 		try {
-			//maximization problem
+			// maximization problem
 			maximize_lp(tettt);
 		} catch (Exception e) {
 			System.out.println("Something went wrong: " + e);
@@ -156,7 +156,7 @@ public class MatchmakingAlgorithmImplementation {
 		String weight;
 		String x;
 		Scanner read = new Scanner(new File("temp_file.txt"));
-		//use the "," and the "\n" as delimiters
+		// use the "," and the "\n" as delimiters
 		read.useDelimiter(",|\\n");
 
 		while (read.hasNext()) {
@@ -189,7 +189,8 @@ public class MatchmakingAlgorithmImplementation {
 /////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
 
 //		System.out.println("Final pairs(?): " + temp_res);
-		// it will return the results from global_utilityFunc2, not global_utilityFunc (which will be removed)
+		// it will return the results from global_utilityFunc2, not global_utilityFunc
+		// (which will be removed)
 		return temp_res;
 	}
 
@@ -448,11 +449,14 @@ public class MatchmakingAlgorithmImplementation {
 			uu.setUser_j(utility_per_user.get(c).getUser_j());
 			uu.setWeight(utility_per_user.get(c).getWeight());
 
-			x_ij = rand.nextInt(2);
-
 			// Iterate through the List with the other players, a player has played
 			// to get the nested user
 			for (int d = 0; d < utility_per_user.size(); d++) {
+
+				// create randomly the x_ij, which is the indicator of whether
+				// or not the players will be together.
+				x_ij = rand.nextInt(2);
+
 				UtilityUser tmp = new UtilityUser();
 				uu_j = utility_per_user.get(d);
 
