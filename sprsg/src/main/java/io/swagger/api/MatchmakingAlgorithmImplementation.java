@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -24,6 +25,14 @@ import io.swagger.model.UserPairAssignment;
 import io.swagger.model.UserPairwiseScore;
 import io.swagger.model.UserScore;
 import io.swagger.model.UtilityUser;
+import scpsolver.problems.LPWizard;
+import scpsolver.problems.LinearProgram;
+import scpsolver.constraints.LinearBiggerThanEqualsConstraint;
+import scpsolver.constraints.LinearEqualsConstraint;
+import scpsolver.constraints.LinearSmallerThanEqualsConstraint;
+import scpsolver.lpsolver.LPSOLVESolver;
+import scpsolver.lpsolver.LinearProgramSolver;
+import scpsolver.lpsolver.SolverFactory;
 
 public class MatchmakingAlgorithmImplementation {
 
@@ -34,6 +43,7 @@ public class MatchmakingAlgorithmImplementation {
 	int users_count = 0;
 	Integer[][] x_for_players;
 	Double[][] weight_for_players;
+	static Integer[] xrs;
 
 	public ArrayList<UserPairAssignment> final_pair(List<UserScore> list, List<UserPairwiseScore> list2,
 			List<UserCollaborationIntentions> list3) throws IOException {
@@ -52,6 +62,7 @@ public class MatchmakingAlgorithmImplementation {
 		users_count = list.size();
 		x_for_players = new Integer[users_count][users_count];
 		weight_for_players = new Double[users_count][users_count];
+		xrs = new Integer[users_count * users_count];
 		// Initialize both arrays as null
 		for (int i = 0; i < users_count; i++) {
 			for (int j = 0; j < users_count; j++) {
@@ -195,137 +206,263 @@ public class MatchmakingAlgorithmImplementation {
 	}
 
 	private void maximize_lp(ArrayList<UtilityUser> last_users) {
+		/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
 
-		glp_prob lp;
-		glp_smcp parm;
-		SWIGTYPE_p_int ind;
-		SWIGTYPE_p_double val;
-		int ret;
-		try {
-			// Create the problem
-			lp = GLPK.glp_create_prob();
-			System.out.println("Problem created");
-			GLPK.glp_set_prob_name(lp, "Testing Problem");
+		UtilityUser uu = new UtilityUser();
+		UtilityUser uu_2 = null;
+//		int temp = 0;
+//		LPWizard lp = new LPWizard();
+//		System.out.println(lp.getLP().getName());
+//		for (int f = 0; f < last_users.size(); f++) {
+//			uu = last_users.get(f);
+//
+//			for (int g = f; g < last_users.size(); g++) {
+//				uu_2 = last_users.get(g);
+//
+//				if (uu.getUser_i().equals(uu_2.getUser_j())) {
+//
+//					// add as objects in the maximize problem, each user with his weight
+//					lp.plus(uu.getUser_i(), uu.getWeight()).plus(uu_2.getUser_i(), uu_2.getWeight());
+//					// lp.plus(uu.getUser_j(), uu_2.getWeight());
+//
+//					// add the constraints necessary
+//					// for each pair:
+////					  lp.addConstraint(new LinearEqualsConstraint (uu.getUser_i(), 0.0, "c" + 1));
+//					lp.addConstraint("c" + temp, 1, "<=").plus(uu.getUser_i(), 1.0).plus(uu_2.getUser_i(), 1.0)
+//							.setAllVariablesInteger();
+//					lp.addConstraint("c" + (temp + 1), 1, ">=").plus(uu.getUser_i(), 1.0).setAllVariablesInteger();
+//					lp.addConstraint("c" + (temp + 2), 1, ">=").plus(uu_2.getUser_i(), 1.0).setAllVariablesInteger();
+//
+//					temp++;
+//
+//					continue;
+//				} else {
+//					continue;
+//				}
+//
+//			}
+//
+//		}
+//		lp.setMinProblem(false);
+//		System.out.println(lp.solve());
+////		System.out.println(lp.getLP().getIndexmap());
+//		System.out.println(lp.getLP().convertToCPLEX());
 
-			UtilityUser uu = new UtilityUser();
-			UtilityUser uu_2 = null;
+		/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
 
-			// Define rows and columns
-			// with the size of the list. up to n*(n-1)
-			GLPK.glp_add_cols(lp, last_users.size());
-			GLPK.glp_add_rows(lp, last_users.size());
+		////// $$$$$$$$$$$$$$$////////////////
+		// A sample linear program
+//		LinearProgram lp = new LinearProgram();
+//		LinearProgramSolver solver = SolverFactory.newDefault();
+//
+//		lp = new LinearProgram(new double[] { 5.0, 10.0 });
+//		lp.addConstraint(new LinearEqualsConstraint(new double[] { 3.0, 1.0 }, 8.0, "c1"));
+//		lp.addConstraint(new LinearEqualsConstraint(new double[] { 0.0, 4.0 }, 4.0, "c2"));
+//		lp.addConstraint(new LinearEqualsConstraint(new double[] { 2.0, 0.0 }, 2.0, "c3"));
+//		lp.setMinProblem(false);
+		// solver.setTimeconstraint(20);
 
-			// Define the objective
-			GLPK.glp_set_obj_name(lp, "Uglob");
-			GLPK.glp_set_obj_dir(lp, GLPKConstants.GLP_MAX);
+//		double[] solution = solver.solve(lp);
+//		System.out.println(lp.convertToCPLEX());
+//		makeQueenRowConstraints(2, lp);
+		////// $$$$$$$$$$$$$$$////////////////
 
-			for (int i = 0; i < last_users.size(); i++) {
-
-				// Create the bounds
-				// GLP_BV binary value
-				GLPK.glp_set_col_name(lp, i + 1, "x" + (i + 1));
-				GLPK.glp_set_col_kind(lp, i + 1, GLPKConstants.GLP_BV);
-
-			}
-
-			for (int i = 0; i < last_users.size(); i++) {
-
+		/* Our objective function simply sums up all the x_i,j. */
+		double[] objectiveFunction = new double[users_count * users_count];
+		for (int i = 0; i < users_count * users_count; i++) {
+			if (i < last_users.size()) {
 				uu = last_users.get(i);
-
-				// Allocate memory
-				ind = GLPK.new_intArray(last_users.size());
-				val = GLPK.new_doubleArray(last_users.size());
-
-				for (int j = 0; j < last_users.size(); j++) {
-					uu_2 = last_users.get(j);
-
-					// create the constraints
-					// GLP_FX= the lower_bound=upper_bound
-					GLPK.glp_set_row_name(lp, j + 1, "c" + (j + 1));
-					GLPK.glp_set_row_bnds(lp, j + 1, GLPKConstants.GLP_FX, 1.0, 1.0);
-					GLPK.intArray_setitem(ind, j + 1, j + 1);
-					GLPK.intArray_setitem(ind, i + 1, i + 1);
-					GLPK.doubleArray_setitem(val, j + 1, (double) uu.getX());
-					GLPK.doubleArray_setitem(val, j + 1, (double) uu.getX());
-
-				}
-
-				GLPK.glp_set_mat_row(lp, i + 1, last_users.size(), ind, val);
-
-				// Free memory
-				GLPK.delete_intArray(ind);
-				GLPK.delete_doubleArray(val);
-
-			}
-
-			for (int i = 0; i < last_users.size(); i++) {
-				uu = last_users.get(i);
-
-				GLPK.glp_set_obj_coef(lp, i + 1, uu.getWeight());
-			}
-
-//			// Define columns
-//			GLPK.glp_add_cols(lp, 2);
-//			GLPK.glp_set_col_name(lp, 1, "x12");
-//			GLPK.glp_set_col_kind(lp, 1, GLPKConstants.GLP_IV);
-//			GLPK.glp_set_col_bnds(lp, 1, GLPKConstants.GLP_DB, 0, 1);
-//			GLPK.glp_set_col_name(lp, 2, "x21");
-//			GLPK.glp_set_col_kind(lp, 2, GLPKConstants.GLP_IV);
-//			GLPK.glp_set_col_bnds(lp, 2, GLPKConstants.GLP_DB, 0, 1);
-//
-//			// Create constraints
-//
-//			// Allocate memory
-//			ind = GLPK.new_intArray(2);
-//			val = GLPK.new_doubleArray(2);
-//
-//			// Create rows
-//			GLPK.glp_add_rows(lp, 2);
-//
-//			// Set row details
-//			GLPK.glp_set_row_name(lp, 1, "c1");
-//			GLPK.glp_set_row_bnds(lp, 1, GLPKConstants.GLP_FX, 1.0, 1.0);
-//			GLPK.intArray_setitem(ind, 1, 1);
-//			GLPK.intArray_setitem(ind, 2, 2);
-//			GLPK.doubleArray_setitem(val, 1, 1.);
-//			GLPK.doubleArray_setitem(val, 2, 1);
-//			GLPK.glp_set_mat_row(lp, 1, 2, ind, val);
-//
-//
-//			// Free memory
-//			GLPK.delete_intArray(ind);
-//			GLPK.delete_doubleArray(val);
-//
-//			// Define objective
-//			GLPK.glp_set_obj_name(lp, "Uglob");
-//			GLPK.glp_set_obj_dir(lp, GLPKConstants.GLP_MAX);
-//			GLPK.glp_set_obj_coef(lp, 1, 0.28);
-//			GLPK.glp_set_obj_coef(lp, 2, 1.69);
-
-			// Write model to file
-			GLPK.glp_write_lp(lp, null, "lp2.lp");
-
-			// Solve model
-			parm = new glp_smcp();
-			GLPK.glp_init_smcp(parm);
-			ret = GLPK.glp_simplex(lp, parm);
-
-			// Retrieve solution
-			if (ret == 0) {
-				write_lp_solution(lp);
+				objectiveFunction[i] = uu.getWeight();
+				continue;
 			} else {
-				System.out.println("The problem could not be solved");
+				objectiveFunction[i] = 0;
+				continue;
 			}
 
-			// Free memory
-			GLPK.glp_delete_prob(lp);
-		} catch (GlpkException ex) {
-			ex.printStackTrace();
-			ret = 1;
 		}
+		System.out.println("asd");
+		LinearProgram uglobal = new LinearProgram(objectiveFunction);
+		uglobal.setMinProblem(false);
+
+		/* All of the x_i,j variables are binary (0-1). */
+		for (int i = 0; i < users_count * users_count; i++) {
+			uglobal.setBinary(i);
+		}
+
+		makeRowConstraints(users_count, uglobal);
+		makeColumnConstraints(users_count, uglobal);
+
+//		makeDiagonalConstraints(users_count, uglobal);
+
+		LinearProgramSolver solver = SolverFactory.newDefault();
+		double[] solution = solver.solve(uglobal);
 
 		System.out.println("The calculations ended . . .\n");
 
+		/*
+		 * We print out the solution after we find it -- this tells us where we need to
+		 * place the queens!
+		 */
+		System.out.println();
+		for (int i = 0; i < users_count; i++) {
+			for (int j = 0; j < users_count; j++) {
+				System.out.print("x" + (i + 1) + "," + (j + 1) + "=" + (int) solution[users_count * i + j] + "  ");
+			}
+			System.out.println();
+		}
+
+	}
+
+	/**
+	 * Adds the "one user per row" constraints to the linear program, ie. the sum
+	 * from j=1 to n of x_i,j = 1 for all i=1,...,n.
+	 */
+	public static void makeRowConstraints(int n, LinearProgram lp) {
+		int counter = 0;
+		int x_ij = 0;
+		Random rand = new Random();
+
+		double[][] rowConstraintsMatrix = new double[n][n * n];
+		for (int row = 0; row < n; row++) {
+			for (int column = n * row; column < n * row + n; column++) {
+				x_ij = rand.nextInt(2);
+				rowConstraintsMatrix[row][column] = x_ij;
+				xrs[column] = x_ij;
+				System.out.println("row : " + column);
+			}
+		}
+
+		for (double[] row : rowConstraintsMatrix) {
+
+			lp.addConstraint(new LinearEqualsConstraint(row, 1, "x" + counter));
+			counter++;
+		}
+
+		printConstraintsMatrix(rowConstraintsMatrix);
+		System.out.println("These were the row constraints");
+	}
+
+	/**
+	 * Adds the "one user per column" constraints to the linear program, ie. the sum
+	 * from i=1 to n of x_i,j = 1 for all j=1,...,n.
+	 */
+	public static void makeColumnConstraints(int n, LinearProgram lp) {
+		int counter = 0;
+		int x_ij = 0;
+		Random rand = new Random();
+		double[][] columnConstraintsMatrix = new double[n][n * n];
+		for (int row = 0; row < n; row++) {
+			for (int column = row; column < n * n; column += n) {
+
+				columnConstraintsMatrix[row][column] = xrs[row];
+				System.out.println("column	: " + column);
+			}
+		}
+
+		for (double[] row : columnConstraintsMatrix) {
+
+			lp.addConstraint(new LinearEqualsConstraint(row, 1, "x" + counter));
+		}
+
+		printConstraintsMatrix(columnConstraintsMatrix);
+		System.out.println("These were the column constraints");
+	}
+
+	/**
+	 * Adds the "at most one queen per diagonal across the board" constraints to the
+	 * linear program.
+	 */
+	public static void makeDiagonalConstraints(int n, LinearProgram lp) {
+
+		/*
+		 * Here we create the constraints for the "forward diagonals" where we move
+		 * along the first row. ie. x_1,j + the sum of x_1+m,j+m is <= 1 for all
+		 * j=1,...,n.
+		 */
+		double[][] rowForwardConstraintsMatrix = new double[n][n * n];
+		for (int row = 0; row < n; row++) {
+			for (int column = row; column < n * n - row * n; column += (n + 1)) {
+				rowForwardConstraintsMatrix[row][column] = 1;
+			}
+		}
+
+		for (double[] row : rowForwardConstraintsMatrix) {
+			lp.addConstraint(new LinearSmallerThanEqualsConstraint(row, 1, ""));
+		}
+
+		// printConstraintsMatrix(rowForwardConstraintsMatrix);
+		// System.out.println();
+
+		/*
+		 * Here we create the constraints for the "forward diagonals" where we move
+		 * along the first column. ie. x_i,1 + the sum of x_i+m,1+m <= 1 for all
+		 * i=1,...,n.
+		 */
+		double[][] columnForwardConstraintsMatrix = new double[n][n * n];
+		for (int row = 0; row < n; row++) {
+			for (int column = n * row; column < n * n; column += (n + 1)) {
+				columnForwardConstraintsMatrix[row][column] = 1;
+			}
+		}
+
+		for (double[] row : columnForwardConstraintsMatrix) {
+			lp.addConstraint(new LinearSmallerThanEqualsConstraint(row, 1, ""));
+		}
+
+		// printConstraintsMatrix(columnForwardConstraintsMatrix);
+		// System.out.println();
+
+		/*
+		 * Here we create the constraints for the "backward diagonals" where we move
+		 * along the first row. ie. x_1,j + the sum of x_1+m,j-m <= 1 for all j=1,...,n.
+		 */
+		double[][] rowBackwardConstraintsMatrix = new double[n][n * n];
+		for (int row = 0; row < n; row++) {
+			for (int column = row; column < n * row + 1; column += (n - 1)) {
+				rowBackwardConstraintsMatrix[row][column] = 1;
+			}
+		}
+
+		for (double[] row : rowBackwardConstraintsMatrix) {
+			lp.addConstraint(new LinearSmallerThanEqualsConstraint(row, 1, ""));
+		}
+
+		// printConstraintsMatrix(rowBackwardConstraintsMatrix);
+		// System.out.println();
+
+		/*
+		 * Here we create the constraints for the "backward diagonals" where we move
+		 * along the last column. ie. x_i,n + the sum of x_i+m,n-m <= 1 for all
+		 * i=1,...,n.
+		 */
+		double[][] columnBackwardConstraintsMatrix = new double[n][n * n];
+		for (int row = 0; row < n; row++) {
+			for (int column = n * (row + 1) - 1; column < n * n; column += (n - 1)) {
+				columnBackwardConstraintsMatrix[row][column] = 1;
+			}
+		}
+
+		/*
+		 * Note: Our iteration here always gives us an extra '1' at the end of the top
+		 * row, which we can simply remove here.
+		 */
+		columnBackwardConstraintsMatrix[0][n * n - 1] = 0;
+
+		for (double[] row : columnBackwardConstraintsMatrix) {
+			lp.addConstraint(new LinearSmallerThanEqualsConstraint(row, 1, ""));
+		}
+
+		// printConstraintsMatrix(columnBackwardConstraintsMatrix);
+		// System.out.println();
+	}
+
+	public static void printConstraintsMatrix(double[][] matrix) {
+		for (int i = 0; i < matrix.length; i++) {
+			for (int j = 0; j < matrix[i].length; j++) {
+				System.out.print((int) matrix[i][j] + " ");
+			}
+			System.out.println();
+		}
 	}
 
 	/**
@@ -469,12 +606,12 @@ public class MatchmakingAlgorithmImplementation {
 					tmp.setUser_j(uu_j.getUser_i());
 					tmp.setX(x_ij);
 
-					System.out.printf("%d %d\n", c, d);
-					System.out.printf("%d) Utility Per User Func: \n", c);
-					System.out.println(" User i: " + tmp.getUser_i());
-					System.out.println(" User j: " + tmp.getUser_j());
-					System.out.println(" Weight: " + tmp.getWeight());
-					System.out.println(" x_ij: " + tmp.getX());
+//					System.out.printf("%d %d\n", c, d);
+//					System.out.printf("%d) Utility Per User Func: \n", c);
+//					System.out.println(" User i: " + tmp.getUser_i());
+//					System.out.println(" User j: " + tmp.getUser_j());
+//					System.out.println(" Weight: " + tmp.getWeight());
+//					System.out.println(" x_ij: " + tmp.getX());
 
 					utility_user.add(tmp);
 
