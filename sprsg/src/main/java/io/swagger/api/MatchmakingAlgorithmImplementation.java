@@ -210,7 +210,7 @@ public class MatchmakingAlgorithmImplementation {
 
 		UtilityUser uu = new UtilityUser();
 		UtilityUser uu_2 = null;
-//		int temp = 0;
+		int temp = 0;
 //		LPWizard lp = new LPWizard();
 //		System.out.println(lp.getLP().getName());
 //		for (int f = 0; f < last_users.size(); f++) {
@@ -272,15 +272,16 @@ public class MatchmakingAlgorithmImplementation {
 		for (int i = 0; i < users_count * users_count; i++) {
 			if (i < last_users.size()) {
 				uu = last_users.get(i);
+				System.out.println(uu.getWeight());
 				objectiveFunction[i] = uu.getWeight();
 				continue;
 			} else {
 				objectiveFunction[i] = 0;
-				continue;
 			}
-
+			
 		}
-		System.out.println("asd");
+
+		LinearProgramSolver solver = SolverFactory.newDefault();
 		LinearProgram uglobal = new LinearProgram(objectiveFunction);
 		uglobal.setMinProblem(false);
 
@@ -294,9 +295,9 @@ public class MatchmakingAlgorithmImplementation {
 
 //		makeDiagonalConstraints(users_count, uglobal);
 
-		LinearProgramSolver solver = SolverFactory.newDefault();
 		double[] solution = solver.solve(uglobal);
 
+		System.out.println(uglobal.convertToCPLEX());
 		System.out.println("The calculations ended . . .\n");
 
 		/*
@@ -319,27 +320,35 @@ public class MatchmakingAlgorithmImplementation {
 	 */
 	public static void makeRowConstraints(int n, LinearProgram lp) {
 		int counter = 0;
-		int x_ij = 0;
-		Random rand = new Random();
 
 		double[][] rowConstraintsMatrix = new double[n][n * n];
 		for (int row = 0; row < n; row++) {
 			for (int column = n * row; column < n * row + n; column++) {
-				x_ij = rand.nextInt(2);
-				rowConstraintsMatrix[row][column] = x_ij;
-				xrs[column] = x_ij;
-				System.out.println("row : " + column);
+
+				if (column != n * row + row) {
+					rowConstraintsMatrix[row][column] = 1;
+					System.out.print(rowConstraintsMatrix[row][column] + " ");
+					continue;
+				} else {
+					rowConstraintsMatrix[row][column] = 0;
+					System.out.print(rowConstraintsMatrix[row][column] + " ");
+					continue;
+				}
+
 			}
+			System.out.println();
 		}
 
 		for (double[] row : rowConstraintsMatrix) {
 
 			lp.addConstraint(new LinearEqualsConstraint(row, 1, "x" + counter));
 			counter++;
+//			solver.addEqualsConstraint(new LinearEqualsConstraint(row, 1, " " ));
+
 		}
 
-		printConstraintsMatrix(rowConstraintsMatrix);
-		System.out.println("These were the row constraints");
+//		printConstraintsMatrix(rowConstraintsMatrix);
+		System.out.println("These were the make row constraints");
 	}
 
 	/**
@@ -348,24 +357,33 @@ public class MatchmakingAlgorithmImplementation {
 	 */
 	public static void makeColumnConstraints(int n, LinearProgram lp) {
 		int counter = 0;
-		int x_ij = 0;
-		Random rand = new Random();
 		double[][] columnConstraintsMatrix = new double[n][n * n];
 		for (int row = 0; row < n; row++) {
 			for (int column = row; column < n * n; column += n) {
+				if (column != n*row+row) {
+					columnConstraintsMatrix[row][column] = 1;
+					System.out.print(columnConstraintsMatrix[row][column] + " ");
+//					System.out.print(row);
+					continue;
+				} else {
+					columnConstraintsMatrix[row][column] = 0;
+					System.out.print(columnConstraintsMatrix[row][column] + " ");
+					continue;
+				}
 
-				columnConstraintsMatrix[row][column] = xrs[row];
-				System.out.println("column	: " + column);
 			}
+			System.out.println();
 		}
 
 		for (double[] row : columnConstraintsMatrix) {
 
 			lp.addConstraint(new LinearEqualsConstraint(row, 1, "x" + counter));
+			counter++;
+//			solver.addEqualsConstraint(new LinearEqualsConstraint(row, 1,  " " ));
 		}
 
-		printConstraintsMatrix(columnConstraintsMatrix);
-		System.out.println("These were the column constraints");
+//		printConstraintsMatrix(columnConstraintsMatrix);
+		System.out.println("These were the make column constraints");
 	}
 
 	/**
