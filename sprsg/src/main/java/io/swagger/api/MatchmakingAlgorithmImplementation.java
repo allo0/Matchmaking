@@ -44,6 +44,7 @@ public class MatchmakingAlgorithmImplementation {
 	Integer[][] x_for_players;
 	Double[][] weight_for_players;
 	static Integer[] xrs;
+	LinearProgramSolver solver = SolverFactory.newDefault();
 
 	public ArrayList<UserPairAssignment> final_pair(List<UserScore> list, List<UserPairwiseScore> list2,
 			List<UserCollaborationIntentions> list3) throws IOException {
@@ -209,65 +210,9 @@ public class MatchmakingAlgorithmImplementation {
 		/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
 
 		UtilityUser uu = new UtilityUser();
-		UtilityUser uu_2 = null;
-		int temp = 0;
-//		LPWizard lp = new LPWizard();
-//		System.out.println(lp.getLP().getName());
-//		for (int f = 0; f < last_users.size(); f++) {
-//			uu = last_users.get(f);
-//
-//			for (int g = f; g < last_users.size(); g++) {
-//				uu_2 = last_users.get(g);
-//
-//				if (uu.getUser_i().equals(uu_2.getUser_j())) {
-//
-//					// add as objects in the maximize problem, each user with his weight
-//					lp.plus(uu.getUser_i(), uu.getWeight()).plus(uu_2.getUser_i(), uu_2.getWeight());
-//					// lp.plus(uu.getUser_j(), uu_2.getWeight());
-//
-//					// add the constraints necessary
-//					// for each pair:
-////					  lp.addConstraint(new LinearEqualsConstraint (uu.getUser_i(), 0.0, "c" + 1));
-//					lp.addConstraint("c" + temp, 1, "<=").plus(uu.getUser_i(), 1.0).plus(uu_2.getUser_i(), 1.0)
-//							.setAllVariablesInteger();
-//					lp.addConstraint("c" + (temp + 1), 1, ">=").plus(uu.getUser_i(), 1.0).setAllVariablesInteger();
-//					lp.addConstraint("c" + (temp + 2), 1, ">=").plus(uu_2.getUser_i(), 1.0).setAllVariablesInteger();
-//
-//					temp++;
-//
-//					continue;
-//				} else {
-//					continue;
-//				}
-//
-//			}
-//
-//		}
-//		lp.setMinProblem(false);
-//		System.out.println(lp.solve());
-////		System.out.println(lp.getLP().getIndexmap());
-//		System.out.println(lp.getLP().convertToCPLEX());
 
-		/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
 
-		////// $$$$$$$$$$$$$$$////////////////
-		// A sample linear program
-//		LinearProgram lp = new LinearProgram();
-//		LinearProgramSolver solver = SolverFactory.newDefault();
-//
-//		lp = new LinearProgram(new double[] { 5.0, 10.0 });
-//		lp.addConstraint(new LinearEqualsConstraint(new double[] { 3.0, 1.0 }, 8.0, "c1"));
-//		lp.addConstraint(new LinearEqualsConstraint(new double[] { 0.0, 4.0 }, 4.0, "c2"));
-//		lp.addConstraint(new LinearEqualsConstraint(new double[] { 2.0, 0.0 }, 2.0, "c3"));
-//		lp.setMinProblem(false);
-		// solver.setTimeconstraint(20);
-
-//		double[] solution = solver.solve(lp);
-//		System.out.println(lp.convertToCPLEX());
-//		makeQueenRowConstraints(2, lp);
-		////// $$$$$$$$$$$$$$$////////////////
-
-		/* Our objective function simply sums up all the x_i,j. */
+		// Our objective function simply sums up all the x_i,j.
 		double[] objectiveFunction = new double[users_count * users_count];
 		for (int i = 0; i < users_count * users_count; i++) {
 			if (i < last_users.size()) {
@@ -276,12 +221,13 @@ public class MatchmakingAlgorithmImplementation {
 				objectiveFunction[i] = uu.getWeight();
 				continue;
 			} else {
-				objectiveFunction[i] = 0;
+				//low enough value, if all the players haven't played with every other one
+				objectiveFunction[i] = -100;
+				continue;
 			}
-			
+
 		}
 
-		LinearProgramSolver solver = SolverFactory.newDefault();
 		LinearProgram uglobal = new LinearProgram(objectiveFunction);
 		uglobal.setMinProblem(false);
 
@@ -290,20 +236,15 @@ public class MatchmakingAlgorithmImplementation {
 			uglobal.setBinary(i);
 		}
 
-		makeRowConstraints(users_count, uglobal);
-		makeColumnConstraints(users_count, uglobal);
+		rowConst(users_count, uglobal);
+		System.out.println();
+		colConst(users_count, uglobal);
 
-//		makeDiagonalConstraints(users_count, uglobal);
-
+		System.out.println("\nStarting calculations . . .\n");
 		double[] solution = solver.solve(uglobal);
+		System.out.println("\nThe calculations ended . . .\n");
 
-		System.out.println(uglobal.convertToCPLEX());
-		System.out.println("The calculations ended . . .\n");
-
-		/*
-		 * We print out the solution after we find it -- this tells us where we need to
-		 * place the queens!
-		 */
+		// Print the solution for the pairing
 		System.out.println();
 		for (int i = 0; i < users_count; i++) {
 			for (int j = 0; j < users_count; j++) {
@@ -318,20 +259,22 @@ public class MatchmakingAlgorithmImplementation {
 	 * Adds the "one user per row" constraints to the linear program, ie. the sum
 	 * from j=1 to n of x_i,j = 1 for all i=1,...,n.
 	 */
-	public static void makeRowConstraints(int n, LinearProgram lp) {
+	public static void rowConst(int n, LinearProgram lp) {
 		int counter = 0;
 
-		double[][] rowConstraintsMatrix = new double[n][n * n];
+		double[][] rowConstArr = new double[n][n * n];
 		for (int row = 0; row < n; row++) {
 			for (int column = n * row; column < n * row + n; column++) {
-
-				if (column != n * row + row) {
-					rowConstraintsMatrix[row][column] = 1;
-					System.out.print(rowConstraintsMatrix[row][column] + " ");
+				
+				// If-else clause to check for the main diagonal,and if "i==j" place in the cell
+				// the value "0"
+				if (column != (n * row + row)) {
+					rowConstArr[row][column] = 1;
+					System.out.print((int)rowConstArr[row][column] + " ");
 					continue;
 				} else {
-					rowConstraintsMatrix[row][column] = 0;
-					System.out.print(rowConstraintsMatrix[row][column] + " ");
+					rowConstArr[row][column] = 0;
+					System.out.print((int)rowConstArr[row][column] + " ");
 					continue;
 				}
 
@@ -339,35 +282,36 @@ public class MatchmakingAlgorithmImplementation {
 			System.out.println();
 		}
 
-		for (double[] row : rowConstraintsMatrix) {
+		for (double[] row : rowConstArr) {
 
 			lp.addConstraint(new LinearEqualsConstraint(row, 1, "x" + counter));
 			counter++;
-//			solver.addEqualsConstraint(new LinearEqualsConstraint(row, 1, " " ));
 
 		}
+//		System.out.println("Row constraints");
+//		printConstraints(rowConstArr);
 
-//		printConstraintsMatrix(rowConstraintsMatrix);
-		System.out.println("These were the make row constraints");
 	}
 
 	/**
 	 * Adds the "one user per column" constraints to the linear program, ie. the sum
 	 * from i=1 to n of x_i,j = 1 for all j=1,...,n.
 	 */
-	public static void makeColumnConstraints(int n, LinearProgram lp) {
+	public static void colConst(int n, LinearProgram lp) {
 		int counter = 0;
-		double[][] columnConstraintsMatrix = new double[n][n * n];
+		double[][] colConstArr = new double[n][n * n];
 		for (int row = 0; row < n; row++) {
 			for (int column = row; column < n * n; column += n) {
-				if (column != n*row+row) {
-					columnConstraintsMatrix[row][column] = 1;
-					System.out.print(columnConstraintsMatrix[row][column] + " ");
-//					System.out.print(row);
+				// If-else clause to check for the main diagonal,and if "i==j" place in the cell
+				// the value "0"
+				if (column != (n * row + row)) {
+					colConstArr[row][column] = 1;
+					System.out.print((int) colConstArr[row][column] + " ");
+
 					continue;
 				} else {
-					columnConstraintsMatrix[row][column] = 0;
-					System.out.print(columnConstraintsMatrix[row][column] + " ");
+					colConstArr[row][column] = 0;
+					System.out.print((int) colConstArr[row][column] + " ");
 					continue;
 				}
 
@@ -375,137 +319,24 @@ public class MatchmakingAlgorithmImplementation {
 			System.out.println();
 		}
 
-		for (double[] row : columnConstraintsMatrix) {
+		for (double[] row : colConstArr) {
 
 			lp.addConstraint(new LinearEqualsConstraint(row, 1, "x" + counter));
 			counter++;
-//			solver.addEqualsConstraint(new LinearEqualsConstraint(row, 1,  " " ));
+
 		}
 
-//		printConstraintsMatrix(columnConstraintsMatrix);
-		System.out.println("These were the make column constraints");
+//		System.out.println("Column constraints");
+//		printConstraints(colConstArr);
+
 	}
 
-	/**
-	 * Adds the "at most one queen per diagonal across the board" constraints to the
-	 * linear program.
-	 */
-	public static void makeDiagonalConstraints(int n, LinearProgram lp) {
-
-		/*
-		 * Here we create the constraints for the "forward diagonals" where we move
-		 * along the first row. ie. x_1,j + the sum of x_1+m,j+m is <= 1 for all
-		 * j=1,...,n.
-		 */
-		double[][] rowForwardConstraintsMatrix = new double[n][n * n];
-		for (int row = 0; row < n; row++) {
-			for (int column = row; column < n * n - row * n; column += (n + 1)) {
-				rowForwardConstraintsMatrix[row][column] = 1;
-			}
-		}
-
-		for (double[] row : rowForwardConstraintsMatrix) {
-			lp.addConstraint(new LinearSmallerThanEqualsConstraint(row, 1, ""));
-		}
-
-		// printConstraintsMatrix(rowForwardConstraintsMatrix);
-		// System.out.println();
-
-		/*
-		 * Here we create the constraints for the "forward diagonals" where we move
-		 * along the first column. ie. x_i,1 + the sum of x_i+m,1+m <= 1 for all
-		 * i=1,...,n.
-		 */
-		double[][] columnForwardConstraintsMatrix = new double[n][n * n];
-		for (int row = 0; row < n; row++) {
-			for (int column = n * row; column < n * n; column += (n + 1)) {
-				columnForwardConstraintsMatrix[row][column] = 1;
-			}
-		}
-
-		for (double[] row : columnForwardConstraintsMatrix) {
-			lp.addConstraint(new LinearSmallerThanEqualsConstraint(row, 1, ""));
-		}
-
-		// printConstraintsMatrix(columnForwardConstraintsMatrix);
-		// System.out.println();
-
-		/*
-		 * Here we create the constraints for the "backward diagonals" where we move
-		 * along the first row. ie. x_1,j + the sum of x_1+m,j-m <= 1 for all j=1,...,n.
-		 */
-		double[][] rowBackwardConstraintsMatrix = new double[n][n * n];
-		for (int row = 0; row < n; row++) {
-			for (int column = row; column < n * row + 1; column += (n - 1)) {
-				rowBackwardConstraintsMatrix[row][column] = 1;
-			}
-		}
-
-		for (double[] row : rowBackwardConstraintsMatrix) {
-			lp.addConstraint(new LinearSmallerThanEqualsConstraint(row, 1, ""));
-		}
-
-		// printConstraintsMatrix(rowBackwardConstraintsMatrix);
-		// System.out.println();
-
-		/*
-		 * Here we create the constraints for the "backward diagonals" where we move
-		 * along the last column. ie. x_i,n + the sum of x_i+m,n-m <= 1 for all
-		 * i=1,...,n.
-		 */
-		double[][] columnBackwardConstraintsMatrix = new double[n][n * n];
-		for (int row = 0; row < n; row++) {
-			for (int column = n * (row + 1) - 1; column < n * n; column += (n - 1)) {
-				columnBackwardConstraintsMatrix[row][column] = 1;
-			}
-		}
-
-		/*
-		 * Note: Our iteration here always gives us an extra '1' at the end of the top
-		 * row, which we can simply remove here.
-		 */
-		columnBackwardConstraintsMatrix[0][n * n - 1] = 0;
-
-		for (double[] row : columnBackwardConstraintsMatrix) {
-			lp.addConstraint(new LinearSmallerThanEqualsConstraint(row, 1, ""));
-		}
-
-		// printConstraintsMatrix(columnBackwardConstraintsMatrix);
-		// System.out.println();
-	}
-
-	public static void printConstraintsMatrix(double[][] matrix) {
-		for (int i = 0; i < matrix.length; i++) {
-			for (int j = 0; j < matrix[i].length; j++) {
-				System.out.print((int) matrix[i][j] + " ");
+	public static void printConstraints(double[][] constr_arr) {
+		for (int i = 0; i < constr_arr.length; i++) {
+			for (int j = 0; j < constr_arr[i].length; j++) {
+				System.out.print((int) constr_arr[i][j] + " ");
 			}
 			System.out.println();
-		}
-	}
-
-	/**
-	 * write simplex solution
-	 * 
-	 * @param lp problem
-	 */
-	static void write_lp_solution(glp_prob lp) {
-		int i;
-		int n;
-		String name;
-		double val;
-
-		name = GLPK.glp_get_obj_name(lp);
-		val = GLPK.glp_get_obj_val(lp);
-		System.out.print(name);
-		System.out.print(" = ");
-		System.out.println(val);
-		n = GLPK.glp_get_num_cols(lp);
-		for (i = 1; i <= n; i++) {
-			name = GLPK.glp_get_col_name(lp, i);
-			val = GLPK.glp_get_col_prim(lp, i);
-			System.out.print(name);
-			System.out.print(" = ");
-			System.out.println(val);
 		}
 	}
 
@@ -778,20 +609,6 @@ public class MatchmakingAlgorithmImplementation {
 		return utility_user;
 	}
 
-	// Test function to create a n*n array for the weight and for the x_ij
-	// each time it is called it supposedly fills a spot in the arrays
-	// with essentially ndv the -1 and the -100
-	public void array_creator(int point_x, int point_y, int x, double weight) {
-
-		if (point_x == point_y) {
-			x_for_players[point_x][point_y] = -1;
-			weight_for_players[point_x][point_y] = -100.;
-
-		} else {
-			x_for_players[point_x][point_y] = x;
-			weight_for_players[point_x][point_y] = weight;
-		}
-
-	}
+	
 
 }
