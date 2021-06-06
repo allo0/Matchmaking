@@ -41,9 +41,7 @@ public class MatchmakingAlgorithmImplementation {
 	float weight = 0;
 
 	int users_count = 0;
-	Integer[][] x_for_players;
-	Double[][] weight_for_players;
-	static Integer[] xrs;
+
 	LinearProgramSolver solver = SolverFactory.newDefault();
 
 	public ArrayList<UserPairAssignment> final_pair(List<UserScore> list, List<UserPairwiseScore> list2,
@@ -61,17 +59,6 @@ public class MatchmakingAlgorithmImplementation {
 		// initialized with null so as if the size of the UserPairwiseScore is <
 		// than the UserScore we can somehow use it in the maximization problem
 		users_count = list.size();
-		x_for_players = new Integer[users_count][users_count];
-		weight_for_players = new Double[users_count][users_count];
-		xrs = new Integer[users_count * users_count];
-		// Initialize both arrays as null
-		for (int i = 0; i < users_count; i++) {
-			for (int j = 0; j < users_count; j++) {
-
-				x_for_players[i][j] = null;
-				weight_for_players[i][j] = null;
-			}
-		}
 
 		System.out.println("------------------------------------");
 		System.out.println("Main");
@@ -166,7 +153,6 @@ public class MatchmakingAlgorithmImplementation {
 /////////// ~~~~~~~printing the dump text~~~~~~~///////////////
 		String user_i, user_j;
 		String weight;
-		String x;
 		Scanner read = new Scanner(new File("temp_file.txt"));
 		// use the "," and the "\n" as delimiters
 		read.useDelimiter(",|\\n");
@@ -175,8 +161,8 @@ public class MatchmakingAlgorithmImplementation {
 			user_i = read.next().trim();
 			user_j = read.next().trim();
 			weight = read.next().trim();
-			x = read.next().trim();
-			System.out.print(user_i + " " + user_j + " " + weight + " " + x + "\n");
+			// x = read.next().trim();
+			System.out.print(user_i + " " + user_j + " " + weight + "\n");
 		}
 		read.close();
 
@@ -211,7 +197,6 @@ public class MatchmakingAlgorithmImplementation {
 
 		UtilityUser uu = new UtilityUser();
 
-
 		// Our objective function simply sums up all the x_i,j.
 		double[] objectiveFunction = new double[users_count * users_count];
 		for (int i = 0; i < users_count * users_count; i++) {
@@ -221,7 +206,7 @@ public class MatchmakingAlgorithmImplementation {
 				objectiveFunction[i] = uu.getWeight();
 				continue;
 			} else {
-				//low enough value, if all the players haven't played with every other one
+				// low enough value, if all the players haven't played with every other one
 				objectiveFunction[i] = -100;
 				continue;
 			}
@@ -239,6 +224,8 @@ public class MatchmakingAlgorithmImplementation {
 		rowConst(users_count, uglobal);
 		System.out.println();
 		colConst(users_count, uglobal);
+		System.out.println();
+		diagConst(users_count, uglobal);
 
 		System.out.println("\nStarting calculations . . .\n");
 		double[] solution = solver.solve(uglobal);
@@ -265,16 +252,16 @@ public class MatchmakingAlgorithmImplementation {
 		double[][] rowConstArr = new double[n][n * n];
 		for (int row = 0; row < n; row++) {
 			for (int column = n * row; column < n * row + n; column++) {
-				
+
 				// If-else clause to check for the main diagonal,and if "i==j" place in the cell
 				// the value "0"
 				if (column != (n * row + row)) {
 					rowConstArr[row][column] = 1;
-					System.out.print((int)rowConstArr[row][column] + " ");
+					System.out.print((int) rowConstArr[row][column] + " ");
 					continue;
 				} else {
 					rowConstArr[row][column] = 0;
-					System.out.print((int)rowConstArr[row][column] + " ");
+					System.out.print((int) rowConstArr[row][column] + " ");
 					continue;
 				}
 
@@ -326,8 +313,29 @@ public class MatchmakingAlgorithmImplementation {
 
 		}
 
-//		System.out.println("Column constraints");
-//		printConstraints(colConstArr);
+		System.out.println("Column constraints");
+		printConstraints(colConstArr);
+
+	}
+
+	public static void diagConst(int n, LinearProgram lp) {
+		int counter = 0;
+
+		double[][] diagConstArr = new double[n][n * n];
+		for (int row = 0; row < n; row++) {
+			for (int column = row; column < n * row + 1; column += (n-1)) {
+				diagConstArr[row][column] = 4;
+			}
+		}
+
+		for (double[] row : diagConstArr) {
+
+			lp.addConstraint(new LinearEqualsConstraint(row, 1, "x" + counter));
+			counter++;
+
+		}
+		System.out.println("Diagonal constraints");
+		printConstraints(diagConstArr);
 
 	}
 
@@ -453,7 +461,7 @@ public class MatchmakingAlgorithmImplementation {
 					tmp.setWeight(uu.getWeight());
 					tmp.setUser_i(uu.getUser_i());
 					tmp.setUser_j(uu_j.getUser_i());
-					tmp.setX(x_ij);
+					// tmp.setX(x_ij);
 
 //					System.out.printf("%d %d\n", c, d);
 //					System.out.printf("%d) Utility Per User Func: \n", c);
@@ -576,21 +584,18 @@ public class MatchmakingAlgorithmImplementation {
 				if (x_ij == x_ji) {
 
 					// The output form of the users with comma "," as a delimiter
-					// test1,test2,1.690000057220459,1
-					// test2,test1,0.2800000309944153,1
+					// test1,test2,1.690000057220459
+					// test2,test1,0.2800000309944153
 					writer.append(uu.getUser_i());
 					writer.append(",");
 					writer.append(uu.getUser_j());
 					writer.append(",");
 					writer.append(Double.toString(uu.getWeight()));
 					writer.append(",");
-					writer.append(Integer.toString(uu.getX()));
-					writer.append("\n");
 
 					tmp.setUser_i(uu.getUser_i());
 					tmp.setUser_j(uu.getUser_j());
 					tmp.setWeight(uu.getWeight());
-					tmp.setX(uu.getX());
 
 					utility_user.add(tmp);
 
@@ -608,7 +613,5 @@ public class MatchmakingAlgorithmImplementation {
 		writer.close();
 		return utility_user;
 	}
-
-	
 
 }

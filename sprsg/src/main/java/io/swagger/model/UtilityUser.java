@@ -13,8 +13,7 @@ public class UtilityUser {
 		this.setUser_i(user_i);
 		this.setUser_j(user_j);
 		this.setWeight(weight);
-		this.setX(x);
-
+		
 		return this;
 	}
 
@@ -42,13 +41,7 @@ public class UtilityUser {
 		this.user_i = user_i;
 	}
 
-	public int getX() {
-		return x;
-	}
-
-	public void setX(int x) {
-		this.x = x;
-	}
+	
 
 	
 }
