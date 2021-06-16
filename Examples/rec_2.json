@@ -1,64 +1,113 @@
 {
   "userGlobalScores": [
-      {
-        "userId": "topas404",
-        "score": {
-          "quality": 3.8,
-          "collaboration": 4.1
-        }
-      },
-      {
-        "userId": "theoden",
-        "score": {
-          "quality": 4.9,
-          "collaboration": 2.1
-        }
+    {
+      "userId": "test1",
+      "score": {
+        "quality": 3.8,
+        "collaboration": 4.1
       }
+    },
+    {
+      "userId": "test2",
+      "score": {
+        "quality": 4.9,
+        "collaboration": 2.1
+      }
+    },
+    {
+      "userId": "test3",
+      "score": {
+        "quality": 4.9,
+        "collaboration": 2.1
+      }
+    }
   ],
   "userPairwiseScore": [
-      {
-        "gradingUser": "topas404",
-        "scoresGiven": [
-          {
-            "userId": "theoden",
-            "score": {
-              "quality": 3.8,
-              "collaboration": 4.0
-            }
+    {
+      "gradingUser": "test1",
+      "scoresGiven": [
+        {
+          "userId": "test2",
+          "score": {
+            "quality": 4.8,
+            "collaboration": 5.0
           }
-        ]
-      },
-      {
-        "gradingUser": "theoden",
-        "scoresGiven": [
-          {
-            "userId": "topas404",
-            "score": {
-              "quality": 4.9,
-              "collaboration": 2.0
-            }
+        }
+      ]
+    },
+    {
+      "gradingUser": "test3",
+      "scoresGiven": [
+        {
+          "userId": "test1",
+          "score": {
+            "quality": 3.8,
+            "collaboration": 1.0
           }
-        ]
-      }
+        }
+      ]
+    },
+    {
+      "gradingUser": "test2",
+      "scoresGiven": [
+        {
+          "userId": "test1",
+          "score": {
+            "quality": 4.9,
+            "collaboration": 4.0
+          }
+        }
+      ]
+    },
+    {
+      "gradingUser": "test1",
+      "scoresGiven": [
+        {
+          "userId": "test3",
+          "score": {
+            "quality": 0.8,
+            "collaboration": 1.0
+          }
+        }
+      ]
+    }
   ],
   "userCollaborationIntentions": [
-      {
-        "gradingUser": "topas404",
-        "intentions": [
-          {
-            "userId": "theoden",
-            "intention": "idc"
-          }
-        ]
-      },
-      {
-        "gradingUser": "theoden",
-        "intentions": [
-          {
-            "userId": "topas404",
-            "intention": "want"
-          }
-        ]
-      }
+    {
+      "gradingUser": "test1",
+      "intentions": [
+        {
+          "userId": "test2",
+          "intention": "want"
+        }
+      ]
+    },
+    {
+      "gradingUser": "test2",
+      "intentions": [
+        {
+          "userId": "test1",
+          "intention": "want"
+        }
+      ]
+    },
+    {
+      "gradingUser": "test3",
+      "intentions": [
+        {
+          "userId": "test1",
+          "intention": "dwant"
+        }
+      ]
+    },
+    {
+      "gradingUser": "test1",
+      "intentions": [
+        {
+          "userId": "test3",
+          "intention": "dwant"
+        }
+      ]
+    }
   ]
 }

@@ -36,7 +36,7 @@
             "userId": "test2",
             "score": {
               "quality": 3.8,
-              "collaboration": 4.1
+              "collaboration": 2.1
             }
           }
         ]
@@ -47,7 +47,7 @@
           {
             "userId": "test1",
             "score": {
-              "quality": 2.8,
+              "quality": 4.8,
               "collaboration": 4.1
             }
           }
@@ -59,7 +59,7 @@
             "userId": "test3",
             "score": {
               "quality": 3.5,
-              "collaboration": 2.5
+              "collaboration": 4.5
             }
           }
         ]
@@ -70,7 +70,7 @@
           {
             "userId": "test1",
             "score": {
-              "quality": 4.9,
+              "quality": 1.9,
               "collaboration": 2.1
             }
           }
@@ -107,7 +107,7 @@
         "intentions": [
           {
             "userId": "test2",
-            "intention": "want"
+            "intention": "dwant"
           }
         ]
       },
@@ -116,7 +116,7 @@
         "intentions": [
           {
             "userId": "test4",
-            "intention": "idc"
+            "intention": "want"
           }
         ]
       },
@@ -125,7 +125,7 @@
         "intentions": [
           {
             "userId": "test1",
-            "intention": "want"
+            "intention": "dwant"
           }
         ]
       }, {
@@ -133,7 +133,7 @@
         "intentions": [
           {
             "userId": "test1",
-            "intention": "dwant"
+            "intention": "want"
           }
         ]
       },
@@ -151,7 +151,7 @@
         "intentions": [
           {
             "userId": "test3",
-            "intention": "idc"
+            "intention": "want"
           }
         ]
       }

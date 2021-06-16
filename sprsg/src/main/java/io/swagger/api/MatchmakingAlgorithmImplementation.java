@@ -59,7 +59,7 @@ public class MatchmakingAlgorithmImplementation {
 		// initialized with null so as if the size of the UserPairwiseScore is <
 		// than the UserScore we can somehow use it in the maximization problem
 		users_count = list.size();
-
+		System.out.println(users_count);
 		System.out.println("------------------------------------");
 		System.out.println("Main");
 		System.out.println("------------------------------------");
@@ -77,12 +77,15 @@ public class MatchmakingAlgorithmImplementation {
 				ups_2 = list2.get(b);
 				us = ups_2.getScoresGiven().get(0);
 
-				// Check if the Outter user is the same as the nested one
+//				// Check if the Outter user is the same as the nested one
 				if (ups.getGradingUser().equals(ups_2.getGradingUser())
 						&& ups.getScoresGiven().get(0).getUserId().equals(ups_2.getScoresGiven().get(0).getUserId())) {
-//					 System.out.println("The users match:");
-//					 System.out.println(" ups.getGradingUser(): " + ups.getGradingUser());
-//					 System.out.println(" ups_2.getGradingUser(): " + ups_2.getGradingUser());
+					// Check if the Outter user is the same as the nested one
+//				if (ups.getGradingUser().equals(ups_2.getScoresGiven().get(0).getUserId())
+//						&& ups.getScoresGiven().get(0).getUserId().equals(ups_2.getGradingUser())) {
+					// System.out.println("The users match:");
+					// System.out.println(" ups.getGradingUser(): " + ups.getGradingUser());
+					// System.out.println(" ups_2.getGradingUser(): " + ups_2.getGradingUser());
 
 					// If the both scores are 0 the players haven't played again
 					if (us.getScore().getColaboration() != 0 && us.getScore().getQuality() != 0) {
@@ -133,9 +136,9 @@ public class MatchmakingAlgorithmImplementation {
 /////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
 
 /////////// ~Sorting the arraylist~///////////////
-		Collections.sort(global_utility, (UtilityUser s1, UtilityUser s2) -> {
-			return s1.getUser_i().compareToIgnoreCase(s2.getUser_i());
-		});
+//		Collections.sort(global_utility, (UtilityUser s1, UtilityUser s2) -> {
+//			return s1.getUser_i().compareToIgnoreCase(s2.getUser_i());
+//		});
 /////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
 
 /////////// ~~~~~global utility function~~~~~~///////////////
@@ -207,7 +210,7 @@ public class MatchmakingAlgorithmImplementation {
 				continue;
 			} else {
 				// low enough value, if all the players haven't played with every other one
-				objectiveFunction[i] = -100;
+				objectiveFunction[i] = 0;
 				continue;
 			}
 
@@ -226,16 +229,18 @@ public class MatchmakingAlgorithmImplementation {
 		colConst(users_count, uglobal);
 		System.out.println();
 		diagConst(users_count, uglobal);
+//		System.out.println();
 
 		System.out.println("\nStarting calculations . . .\n");
 		double[] solution = solver.solve(uglobal);
 		System.out.println("\nThe calculations ended . . .\n");
+		System.out.print(uglobal.convertToCPLEX());
 
 		// Print the solution for the pairing
 		System.out.println();
 		for (int i = 0; i < users_count; i++) {
 			for (int j = 0; j < users_count; j++) {
-				System.out.print("x" + (i + 1) + "," + (j + 1) + "=" + (int) solution[users_count * i + j] + "  ");
+				System.out.print("x" + (j + 1) + "," + (i + 1) + "=" + (int) solution[users_count * j + i] + "  ");
 			}
 			System.out.println();
 		}
@@ -250,33 +255,23 @@ public class MatchmakingAlgorithmImplementation {
 		int counter = 0;
 
 		double[][] rowConstArr = new double[n][n * n];
+
 		for (int row = 0; row < n; row++) {
 			for (int column = n * row; column < n * row + n; column++) {
-
-				// If-else clause to check for the main diagonal,and if "i==j" place in the cell
-				// the value "0"
-				if (column != (n * row + row)) {
-					rowConstArr[row][column] = 1;
-					System.out.print((int) rowConstArr[row][column] + " ");
-					continue;
-				} else {
-					rowConstArr[row][column] = 0;
-					System.out.print((int) rowConstArr[row][column] + " ");
-					continue;
-				}
-
+				rowConstArr[row][column] = 1;
+				System.out.print((int) rowConstArr[row][column] + " ");
 			}
 			System.out.println();
 		}
 
 		for (double[] row : rowConstArr) {
 
-			lp.addConstraint(new LinearEqualsConstraint(row, 1, "x" + counter));
+			lp.addConstraint(new LinearEqualsConstraint(row, 1, "r" + counter));
 			counter++;
 
 		}
-//		System.out.println("Row constraints");
-//		printConstraints(rowConstArr);
+		System.out.println("Row constraints");
+		printConstraints(rowConstArr);
 
 	}
 
@@ -287,28 +282,18 @@ public class MatchmakingAlgorithmImplementation {
 	public static void colConst(int n, LinearProgram lp) {
 		int counter = 0;
 		double[][] colConstArr = new double[n][n * n];
+
 		for (int row = 0; row < n; row++) {
 			for (int column = row; column < n * n; column += n) {
-				// If-else clause to check for the main diagonal,and if "i==j" place in the cell
-				// the value "0"
-				if (column != (n * row + row)) {
-					colConstArr[row][column] = 1;
-					System.out.print((int) colConstArr[row][column] + " ");
-
-					continue;
-				} else {
-					colConstArr[row][column] = 0;
-					System.out.print((int) colConstArr[row][column] + " ");
-					continue;
-				}
-
+				colConstArr[row][column] = 1;
+				System.out.print((int) colConstArr[row][column] + " ");
 			}
 			System.out.println();
 		}
 
 		for (double[] row : colConstArr) {
 
-			lp.addConstraint(new LinearEqualsConstraint(row, 1, "x" + counter));
+			lp.addConstraint(new LinearEqualsConstraint(row, 1, "c" + counter));
 			counter++;
 
 		}
@@ -321,21 +306,51 @@ public class MatchmakingAlgorithmImplementation {
 	public static void diagConst(int n, LinearProgram lp) {
 		int counter = 0;
 
-		double[][] diagConstArr = new double[n][n * n];
+//		double[][] diagConstArr = new double[n][n * n];
+//		for (int row = 0; row < n; row++) {
+//			for (int column = n * row; column < n * n; column += (n + 1)) {
+//				diagConstArr[row][column] = 1;
+//				System.out.print(diagConstArr[row][column] + " ");
+//			}
+//			System.out.println();
+//		}
+//
+//		for (double[] row : diagConstArr) {
+//			System.out.print(row[counter] + " ");
+//			lp.addConstraint(new LinearSmallerThanEqualsConstraint(row, 1, "d" + counter));
+//			counter++;
+//
+//		}
+//		System.out.println("Diagonal constraints");
+//		printConstraints(diagConstArr);
+//
+//		counter = 0;
+
+		double[][] diagConstArrB = new double[n][n * n];
 		for (int row = 0; row < n; row++) {
-			for (int column = row; column < n * row + 1; column += (n-1)) {
-				diagConstArr[row][column] = 4;
+			for (int column = n * row; column < n * n; column += 1) {
+				if (column == (n * row + row)) {
+					for (int k = 0; k < n; k++)
+						diagConstArrB[k][column] = 1;
+					System.out.print(diagConstArrB[row][column] + " ");
+				}
+
 			}
+			System.out.println();
 		}
-
-		for (double[] row : diagConstArr) {
-
-			lp.addConstraint(new LinearEqualsConstraint(row, 1, "x" + counter));
-			counter++;
+//		diagConstArrB[0][n*n - 1] = 0;
+		for (double[] row : diagConstArrB) {
+			if (n % 2 == 0) {
+				lp.addConstraint(new LinearEqualsConstraint(row, 0, "d" + counter));
+				counter++;
+			} else {
+				lp.addConstraint(new LinearEqualsConstraint(row, 1, "d" + counter));
+				counter++;
+			}
 
 		}
-		System.out.println("Diagonal constraints");
-		printConstraints(diagConstArr);
+		System.out.println("Diagonal constraints B");
+		printConstraints(diagConstArrB);
 
 	}
 
@@ -398,6 +413,7 @@ public class MatchmakingAlgorithmImplementation {
 			String graded) {
 		UserCollaborationSpec ucs = new UserCollaborationSpec();
 		UserCollaborationIntentions uci;
+		UserCollaborationIntentions uci_tmp;
 
 		// Iterate through the List with the Intentions for the players,
 		// in order to get the outter player
@@ -408,13 +424,16 @@ public class MatchmakingAlgorithmImplementation {
 			// Iterate again through the List with the Intentions for the players,
 			// in order to get the nested player
 			for (int j = 0; j < collaboration_intentions.size(); j++) {
+				uci_tmp = collaboration_intentions.get(j);
 				uci_2 = collaboration_intentions.get(j).getIntentions();
 
 				// Check if the Outter user is the one that is getting graded
-				if (uci.getGradingUser().equals(gradee)) {
-					ucs = uci.getIntentions().get(0);
+				if (uci.getGradingUser().equals(gradee) && gradee.equals(uci_tmp.getGradingUser())) {
+
+					ucs = uci_tmp.getIntentions().get(0);
 					// Check if the inner user is the one that grades
 					if (uci_2.get(0).getUserId().equals(graded)) {
+
 						intentions = ucs.getIntention().toString();
 						break;
 					}
@@ -430,7 +449,7 @@ public class MatchmakingAlgorithmImplementation {
 
 		ArrayList<UtilityUser> utility_user = new ArrayList<UtilityUser>();
 		Random rand = new Random();
-
+		int temp_counter = 0;
 		int x_ij = 0;
 		UtilityUser uu = new UtilityUser();
 		UtilityUser uu_j = new UtilityUser();
@@ -457,10 +476,11 @@ public class MatchmakingAlgorithmImplementation {
 				// if the pair (nested outter ) matches
 				// add the new pair ij to the arraylist
 				if (uu.getUser_i().equals(uu_j.getUser_j()) && uu.getUser_j().equals(uu_j.getUser_i())) {
-
+					temp_counter++;
 					tmp.setWeight(uu.getWeight());
 					tmp.setUser_i(uu.getUser_i());
 					tmp.setUser_j(uu_j.getUser_i());
+					tmp.setX(temp_counter);
 					// tmp.setX(x_ij);
 
 //					System.out.printf("%d %d\n", c, d);
@@ -551,7 +571,7 @@ public class MatchmakingAlgorithmImplementation {
 	private ArrayList<UtilityUser> global_utilityFunc2(ArrayList<UtilityUser> global_utility) throws IOException {
 
 		ArrayList<UtilityUser> utility_user = new ArrayList<UtilityUser>();
-
+		int temp_counter = 0;
 		int x_ij = 0;
 		int x_ji = 0;
 		UtilityUser uu = new UtilityUser();
@@ -593,10 +613,11 @@ public class MatchmakingAlgorithmImplementation {
 					writer.append(Double.toString(uu.getWeight()));
 					writer.append(",");
 
+					temp_counter++;
 					tmp.setUser_i(uu.getUser_i());
 					tmp.setUser_j(uu.getUser_j());
 					tmp.setWeight(uu.getWeight());
-
+					tmp.setX(temp_counter);
 					utility_user.add(tmp);
 
 					break;
