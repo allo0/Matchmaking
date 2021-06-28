@@ -190,7 +190,7 @@ public class MatchmakingAlgorithmImplementation {
 
 /////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
 
-//		System.out.println("Final pairs(?): " + temp_res);
+
 		// it will return the results from global_utilityFunc2, not global_utilityFunc
 		// (which will be removed)
 		return temp_res;
@@ -214,7 +214,7 @@ public class MatchmakingAlgorithmImplementation {
 
 				uu = last_users.get(i / users_count);
 				objectiveFunction[i] = uu.getWeight();
-				System.out.println(i / users_count);
+//				System.out.println(i / users_count);
 //				continue;
 			}
 
@@ -226,7 +226,7 @@ public class MatchmakingAlgorithmImplementation {
 		/* All of the x_i,j variables are binary (0-1). */
 		for (int i = 0; i < users_count * users_count; i++) {
 			uglobal.setBinary(i);
-
+			
 		}
 
 		rowConst(users_count, uglobal);
@@ -236,22 +236,22 @@ public class MatchmakingAlgorithmImplementation {
 		diagConst(users_count, uglobal);
 
 		System.out.println("\nStarting calculations . . .\n");
-//		StringBuffer s = uglobal.convertToCPLEX();
-//		System.out.println(s);
-
-		LinearProgramSolver solver = SolverFactory.newDefault();
-		double[] solution = solver.solve(uglobal);
-		System.out.println("\nThe calculations ended . . .\n");
-		System.out.print(uglobal.convertToCPLEX());
-
-		// Print the solution for the pairing
-		System.out.println();
-		for (int i = 0; i < users_count; i++) {
-			for (int j = 0; j < users_count; j++) {
-				System.out.print("x" + (j + 1) + "," + (i + 1) + "=" + (int) solution[users_count * j + i] + "  ");
-			}
-			System.out.println();
-		}
+		StringBuffer s = uglobal.convertToCPLEX();
+		System.out.println(s);
+//
+//		LinearProgramSolver solver = SolverFactory.newDefault();
+//		double[] solution = solver.solve(uglobal);
+//		System.out.println("\nThe calculations ended . . .\n");
+//		System.out.print(uglobal.convertToCPLEX());
+//
+//		// Print the solution for the pairing
+//		System.out.println();
+//		for (int i = 0; i < users_count; i++) {
+//			for (int j = 0; j < users_count; j++) {
+//				System.out.print("x" + (j + 1) + "," + (i + 1) + "=" + (int) solution[users_count * j + i] + "  ");
+//			}
+//			System.out.println();
+//		}
 
 	}
 

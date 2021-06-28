@@ -29,18 +29,7 @@
       }
   ],
   "userPairwiseScore": [
-      {
-        "gradingUser": "test1",
-        "scoresGiven": [
-          {
-            "userId": "test2",
-            "score": {
-              "quality": 3.8,
-              "collaboration": 2.1
-            }
-          }
-        ]
-      },
+      
       {
         "gradingUser": "test3",
         "scoresGiven": [
@@ -65,18 +54,6 @@
         ]
       },
       {
-        "gradingUser": "test2",
-        "scoresGiven": [
-          {
-            "userId": "test1",
-            "score": {
-              "quality": 1.9,
-              "collaboration": 2.1
-            }
-          }
-        ]
-      },
-      {
         "gradingUser": "test4",
         "scoresGiven": [
           {
@@ -94,7 +71,7 @@
           {
             "userId": "test4",
             "score": {
-              "quality": 4.9,
+              "quality": 4.7,
               "collaboration": 2.1
             }
           }
@@ -102,29 +79,12 @@
       }
   ],
   "userCollaborationIntentions": [
-      {
-        "gradingUser": "test1",
-        "intentions": [
-          {
-            "userId": "test2",
-            "intention": "want"
-          }
-        ]
-      },
+     
       {
         "gradingUser": "test2",
         "intentions": [
           {
             "userId": "test4",
-            "intention": "dwant"
-          }
-        ]
-      },
-      {
-        "gradingUser": "test2",
-        "intentions": [
-          {
-            "userId": "test1",
             "intention": "want"
           }
         ]
@@ -133,7 +93,7 @@
         "intentions": [
           {
             "userId": "test1",
-            "intention": "dwant"
+            "intention": "want"
           }
         ]
       },
@@ -142,7 +102,7 @@
         "intentions": [
           {
             "userId": "test2",
-            "intention": "dwant"
+            "intention": "idc"
           }
         ]
       },
@@ -151,7 +111,7 @@
         "intentions": [
           {
             "userId": "test3",
-            "intention": "dwant"
+            "intention": "want"
           }
         ]
       }
