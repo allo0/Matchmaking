@@ -42,7 +42,6 @@ public class MatchmakingAlgorithmImplementation {
 
 	int users_count = 0;
 
-	LinearProgramSolver solver = SolverFactory.newDefault();
 
 	public ArrayList<UserPairAssignment> final_pair(List<UserScore> list, List<UserPairwiseScore> list2,
 			List<UserCollaborationIntentions> list3) throws IOException {
@@ -59,7 +58,9 @@ public class MatchmakingAlgorithmImplementation {
 		// initialized with null so as if the size of the UserPairwiseScore is <
 		// than the UserScore we can somehow use it in the maximization problem
 		users_count = list.size();
+
 		System.out.println(users_count);
+
 		System.out.println("------------------------------------");
 		System.out.println("Main");
 		System.out.println("------------------------------------");
@@ -202,16 +203,19 @@ public class MatchmakingAlgorithmImplementation {
 
 		// Our objective function simply sums up all the x_i,j.
 		double[] objectiveFunction = new double[users_count * users_count];
+		int ofs = 0;
 		for (int i = 0; i < users_count * users_count; i++) {
-			if (i < last_users.size()) {
-				uu = last_users.get(i);
-				System.out.println(uu.getWeight());
-				objectiveFunction[i] = uu.getWeight();
+			if (i == (users_count * ofs + ofs)) { // ignore the elements that are on the "diagonal"
+
+				ofs++;
+//				objectiveFunction[i] =0;
 				continue;
 			} else {
-				// low enough value, if all the players haven't played with every other one
-				objectiveFunction[i] = 0;
-				continue;
+
+				uu = last_users.get(i / users_count);
+				objectiveFunction[i] = uu.getWeight();
+				System.out.println(i / users_count);
+//				continue;
 			}
 
 		}
@@ -222,6 +226,7 @@ public class MatchmakingAlgorithmImplementation {
 		/* All of the x_i,j variables are binary (0-1). */
 		for (int i = 0; i < users_count * users_count; i++) {
 			uglobal.setBinary(i);
+
 		}
 
 		rowConst(users_count, uglobal);
@@ -229,9 +234,12 @@ public class MatchmakingAlgorithmImplementation {
 		colConst(users_count, uglobal);
 		System.out.println();
 		diagConst(users_count, uglobal);
-//		System.out.println();
 
 		System.out.println("\nStarting calculations . . .\n");
+//		StringBuffer s = uglobal.convertToCPLEX();
+//		System.out.println(s);
+
+		LinearProgramSolver solver = SolverFactory.newDefault();
 		double[] solution = solver.solve(uglobal);
 		System.out.println("\nThe calculations ended . . .\n");
 		System.out.print(uglobal.convertToCPLEX());
@@ -259,9 +267,9 @@ public class MatchmakingAlgorithmImplementation {
 		for (int row = 0; row < n; row++) {
 			for (int column = n * row; column < n * row + n; column++) {
 				rowConstArr[row][column] = 1;
-				System.out.print((int) rowConstArr[row][column] + " ");
+				// System.out.print((int) rowConstArr[row][column] + " ");
 			}
-			System.out.println();
+			// System.out.println();
 		}
 
 		for (double[] row : rowConstArr) {
@@ -286,9 +294,9 @@ public class MatchmakingAlgorithmImplementation {
 		for (int row = 0; row < n; row++) {
 			for (int column = row; column < n * n; column += n) {
 				colConstArr[row][column] = 1;
-				System.out.print((int) colConstArr[row][column] + " ");
+				// System.out.print((int) colConstArr[row][column] + " ");
 			}
-			System.out.println();
+			// System.out.println();
 		}
 
 		for (double[] row : colConstArr) {
@@ -332,13 +340,13 @@ public class MatchmakingAlgorithmImplementation {
 				if (column == (n * row + row)) {
 					for (int k = 0; k < n; k++)
 						diagConstArrB[k][column] = 1;
-					System.out.print(diagConstArrB[row][column] + " ");
+					// System.out.print(diagConstArrB[row][column] + " ");
 				}
 
 			}
-			System.out.println();
+			// System.out.println();
 		}
-//		diagConstArrB[0][n*n - 1] = 0;
+
 		for (double[] row : diagConstArrB) {
 			if (n % 2 == 0) {
 				lp.addConstraint(new LinearEqualsConstraint(row, 0, "d" + counter));
@@ -449,8 +457,7 @@ public class MatchmakingAlgorithmImplementation {
 
 		ArrayList<UtilityUser> utility_user = new ArrayList<UtilityUser>();
 		Random rand = new Random();
-		int temp_counter = 0;
-		int x_ij = 0;
+
 		UtilityUser uu = new UtilityUser();
 		UtilityUser uu_j = new UtilityUser();
 
@@ -466,29 +473,22 @@ public class MatchmakingAlgorithmImplementation {
 			// to get the nested user
 			for (int d = 0; d < utility_per_user.size(); d++) {
 
-				// create randomly the x_ij, which is the indicator of whether
-				// or not the players will be together.
-				x_ij = rand.nextInt(2);
-
 				UtilityUser tmp = new UtilityUser();
 				uu_j = utility_per_user.get(d);
 
 				// if the pair (nested outter ) matches
 				// add the new pair ij to the arraylist
 				if (uu.getUser_i().equals(uu_j.getUser_j()) && uu.getUser_j().equals(uu_j.getUser_i())) {
-					temp_counter++;
+
 					tmp.setWeight(uu.getWeight());
 					tmp.setUser_i(uu.getUser_i());
 					tmp.setUser_j(uu_j.getUser_i());
-					tmp.setX(temp_counter);
-					// tmp.setX(x_ij);
 
 //					System.out.printf("%d %d\n", c, d);
 //					System.out.printf("%d) Utility Per User Func: \n", c);
 //					System.out.println(" User i: " + tmp.getUser_i());
 //					System.out.println(" User j: " + tmp.getUser_j());
 //					System.out.println(" Weight: " + tmp.getWeight());
-//					System.out.println(" x_ij: " + tmp.getX());
 
 					utility_user.add(tmp);
 
@@ -496,8 +496,7 @@ public class MatchmakingAlgorithmImplementation {
 
 					break;
 				}
-				// reset the counter
-//				x_ij = 0;
+
 			}
 
 		}
@@ -571,7 +570,7 @@ public class MatchmakingAlgorithmImplementation {
 	private ArrayList<UtilityUser> global_utilityFunc2(ArrayList<UtilityUser> global_utility) throws IOException {
 
 		ArrayList<UtilityUser> utility_user = new ArrayList<UtilityUser>();
-		int temp_counter = 0;
+
 		int x_ij = 0;
 		int x_ji = 0;
 		UtilityUser uu = new UtilityUser();
@@ -613,11 +612,10 @@ public class MatchmakingAlgorithmImplementation {
 					writer.append(Double.toString(uu.getWeight()));
 					writer.append(",");
 
-					temp_counter++;
 					tmp.setUser_i(uu.getUser_i());
 					tmp.setUser_j(uu.getUser_j());
 					tmp.setWeight(uu.getWeight());
-					tmp.setX(temp_counter);
+
 					utility_user.add(tmp);
 
 					break;

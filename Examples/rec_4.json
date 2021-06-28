@@ -107,7 +107,7 @@
         "intentions": [
           {
             "userId": "test2",
-            "intention": "dwant"
+            "intention": "want"
           }
         ]
       },
@@ -116,7 +116,7 @@
         "intentions": [
           {
             "userId": "test4",
-            "intention": "want"
+            "intention": "dwant"
           }
         ]
       },
@@ -125,7 +125,7 @@
         "intentions": [
           {
             "userId": "test1",
-            "intention": "dwant"
+            "intention": "want"
           }
         ]
       }, {
@@ -133,7 +133,7 @@
         "intentions": [
           {
             "userId": "test1",
-            "intention": "want"
+            "intention": "dwant"
           }
         ]
       },
@@ -142,7 +142,7 @@
         "intentions": [
           {
             "userId": "test2",
-            "intention": "want"
+            "intention": "dwant"
           }
         ]
       },
@@ -151,7 +151,7 @@
         "intentions": [
           {
             "userId": "test3",
-            "intention": "want"
+            "intention": "dwant"
           }
         ]
       }
