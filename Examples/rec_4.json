@@ -1,4 +1,4 @@
-{
+  {
   "userGlobalScores": [
       {
         "userId": "test1",
@@ -29,26 +29,15 @@
       }
   ],
   "userPairwiseScore": [
-      {
-        "gradingUser": "test1",
-        "scoresGiven": [
-          {
-            "userId": "test2",
-            "score": {
-              "quality": 3.8,
-              "collaboration": 4.1
-            }
-          }
-        ]
-      },
+      
       {
         "gradingUser": "test3",
         "scoresGiven": [
           {
             "userId": "test1",
             "score": {
-              "quality": 2.8,
-              "collaboration": 1.1
+              "quality": 4.8,
+              "collaboration": 4.1
             }
           }
         ]
@@ -59,19 +48,7 @@
             "userId": "test3",
             "score": {
               "quality": 3.5,
-              "collaboration": 1.5
-            }
-          }
-        ]
-      },
-      {
-        "gradingUser": "test2",
-        "scoresGiven": [
-          {
-            "userId": "test1",
-            "score": {
-              "quality": 4.9,
-              "collaboration": 2.1
+              "collaboration": 4.5
             }
           }
         ]
@@ -94,7 +71,7 @@
           {
             "userId": "test4",
             "score": {
-              "quality": 4.9,
+              "quality": 4.7,
               "collaboration": 2.1
             }
           }
@@ -102,29 +79,12 @@
       }
   ],
   "userCollaborationIntentions": [
-      {
-        "gradingUser": "test1",
-        "intentions": [
-          {
-            "userId": "test2",
-            "intention": "idc"
-          }
-        ]
-      },
+     
       {
         "gradingUser": "test2",
         "intentions": [
           {
             "userId": "test4",
-            "intention": "idc"
-          }
-        ]
-      },
-      {
-        "gradingUser": "test2",
-        "intentions": [
-          {
-            "userId": "test1",
             "intention": "want"
           }
         ]
@@ -133,7 +93,7 @@
         "intentions": [
           {
             "userId": "test1",
-            "intention": "dwant"
+            "intention": "want"
           }
         ]
       },
@@ -142,7 +102,7 @@
         "intentions": [
           {
             "userId": "test2",
-            "intention": "want"
+            "intention": "idc"
           }
         ]
       },
@@ -151,7 +111,7 @@
         "intentions": [
           {
             "userId": "test3",
-            "intention": "idc"
+            "intention": "want"
           }
         ]
       }

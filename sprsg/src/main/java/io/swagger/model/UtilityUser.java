@@ -1,19 +1,29 @@
 package io.swagger.model;
 
-public class UtilityUser {
+import java.util.ArrayList;
+import java.util.Collections;
 
+public class UtilityUser {
 	private String user_i = null;
 	private String user_j = null;
 	private float weight = 0;
-	private int x=0;
+	private int x = 0;
 
-	public UtilityUser user(String user_i, String user_j,float weight) {
+	public UtilityUser user(String user_i, String user_j, float weight) {
 		this.setUser_i(user_i);
 		this.setUser_j(user_j);
 		this.setWeight(weight);
 		this.setX(x);
-
+		
 		return this;
+	}
+
+	public int getX() {
+		return x;
+	}
+
+	public void setX(int x) {
+		this.x = x;
 	}
 
 	public float getWeight() {
@@ -40,13 +50,7 @@ public class UtilityUser {
 		this.user_i = user_i;
 	}
 
+	
 
-	public int getX() {
-		return x;
-	}
-
-	public void setX(int x) {
-		this.x = x;
-	}
 	
 }

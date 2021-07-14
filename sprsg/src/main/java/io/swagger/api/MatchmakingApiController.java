@@ -1,5 +1,6 @@
 package io.swagger.api;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -36,7 +37,7 @@ public class MatchmakingApiController implements MatchmakingApi {
 	}
 
 	public ResponseEntity<List<UserPairAssignment>> matchmakingPost(
-			@ApiParam(value = "The body is a JSON structure having the following parts (a) global user score (b) pairwise user scores and (c) user-to-user collaboration intentions. The output of the computation is a user pair assignment matrix.", required = true) @Valid @RequestBody Body body) {
+			@ApiParam(value = "The body is a JSON structure having the following parts {a} global user score {b} pairwise user scores and {c} user-to-user collaboration intentions. The output of the computation is a user pair assignment matrix.", required = true) @Valid @RequestBody Body body) {
 		String accept = request.getHeader("Accept");
 		if (accept != null && accept.contains("application/json")) {
 			ArrayList<UserPairAssignment> result = new ArrayList<UserPairAssignment>();
@@ -63,8 +64,13 @@ public class MatchmakingApiController implements MatchmakingApi {
 
 			MatchmakingAlgorithmImplementation ma = new MatchmakingAlgorithmImplementation();
 
-			result = ma.final_pair(body.getUserGlobalScores(), body.getUserPairwiseScore(),
-					body.getUserCollaborationIntentions());
+			try {
+				result = ma.final_pair(body.getUserGlobalScores(), body.getUserPairwiseScore(),
+						body.getUserCollaborationIntentions());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
 //			for (int i = 0; i < users_id.size(); i += 2) {
 //				UserPairAssignment pairToAdd = new UserPairAssignment();
