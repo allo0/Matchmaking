@@ -4,19 +4,11 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Random;
-import java.util.Scanner;
 
-import org.gnu.glpk.GLPK;
-import org.gnu.glpk.GLPKConstants;
-import org.gnu.glpk.GlpkException;
-import org.gnu.glpk.SWIGTYPE_p_double;
-import org.gnu.glpk.SWIGTYPE_p_int;
-import org.gnu.glpk.glp_prob;
-import org.gnu.glpk.glp_smcp;
+import java.util.Scanner;
 
 import io.swagger.model.UserCollaborationIntentions;
 import io.swagger.model.UserCollaborationSpec;
@@ -25,23 +17,20 @@ import io.swagger.model.UserPairAssignment;
 import io.swagger.model.UserPairwiseScore;
 import io.swagger.model.UserScore;
 import io.swagger.model.UtilityUser;
-import scpsolver.problems.LPWizard;
-import scpsolver.problems.LinearProgram;
-import scpsolver.constraints.LinearBiggerThanEqualsConstraint;
 import scpsolver.constraints.LinearEqualsConstraint;
-import scpsolver.constraints.LinearSmallerThanEqualsConstraint;
-import scpsolver.lpsolver.LPSOLVESolver;
 import scpsolver.lpsolver.LinearProgramSolver;
 import scpsolver.lpsolver.SolverFactory;
+import scpsolver.problems.LinearProgram;
 
 public class MatchmakingAlgorithmImplementation {
 
 	boolean played_again = false;
 	String intentions;
 	float weight = 0;
-
+	String[][] user2 = null;
+	String[][] user1 = null;
 	int users_count = 0;
-
+	int users_count2 = 0;
 
 	public ArrayList<UserPairAssignment> final_pair(List<UserScore> list, List<UserPairwiseScore> list2,
 			List<UserCollaborationIntentions> list3) throws IOException {
@@ -58,8 +47,39 @@ public class MatchmakingAlgorithmImplementation {
 		// initialized with null so as if the size of the UserPairwiseScore is <
 		// than the UserScore we can somehow use it in the maximization problem
 		users_count = list.size();
-
-		System.out.println(users_count);
+//		users_count2 = list2.size();
+//		UserScore us1 = new UserScore();
+//		UserScore us2 = new UserScore();
+//		user2 = new String[users_count][users_count];
+//		user1 = new String[users_count][users_count];
+//		for (int i = 0; i < users_count; i++) {
+//			us2 = list.get(i);
+//			for (int j = 0; j < users_count; j++) {
+//				us1 = list.get(j);
+//
+//				if (i == j) {
+//					user1[i][j] = "0";
+//					user2[i][j] = "0";
+//				} else {
+//					user2[i][j] = us2.getUserId();
+//					user1[i][j] = us1.getUserId();
+//				}
+//
+//			}
+//
+//		}
+//		for (int i = 0; i < users_count; i++) {
+//			for (int j = 0; j < users_count; j++) {
+//				System.out.print(user2[i][j] + " ");
+//			}
+//			System.out.println();
+//		}
+//		for (int i = 0; i < users_count; i++) {
+//			for (int j = 0; j < users_count; j++) {
+//				System.out.print(user1[i][j] + " ");
+//			}
+//			System.out.println();
+//		}
 
 		System.out.println("------------------------------------");
 		System.out.println("Main");
@@ -68,7 +88,6 @@ public class MatchmakingAlgorithmImplementation {
 		UserPairwiseScore ups = null;
 
 		// Iterate through the UPS list
-
 		for (int a = 0; a < list2.size(); a++) {
 			ups = list2.get(a);
 			UserPairwiseScore ups_2 = null;
@@ -140,6 +159,7 @@ public class MatchmakingAlgorithmImplementation {
 //		Collections.sort(global_utility, (UtilityUser s1, UtilityUser s2) -> {
 //			return s1.getUser_i().compareToIgnoreCase(s2.getUser_i());
 //		});
+		global_utility.sort(Comparator.comparing(UtilityUser::getUser_i).thenComparing(UtilityUser::getUser_j));
 /////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
 
 /////////// ~~~~~global utility function~~~~~~///////////////
@@ -170,26 +190,7 @@ public class MatchmakingAlgorithmImplementation {
 		}
 		read.close();
 
-/////////// ~~~~~printing the testing array~~~~~~///////////////
-//		for (int i = 0; i < users_count; i++) {
-//			for (int j = 0; j < users_count; j++) {
-//				System.out.print(weight_for_players[i][j] + " ");
-//			}
-//			System.out.println();
-//		}
-//		
-//		System.out.println("~~~~~~");
-//		
-//		for (int i = 0; i < users_count; i++) {
-//			for (int j = 0; j < users_count; j++) {
-//				System.out.print(x_for_players[i][j] + " ");
-//			}
-//			System.out.println();
-//		}
 /////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
-
-/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
-
 
 		// it will return the results from global_utilityFunc2, not global_utilityFunc
 		// (which will be removed)
@@ -201,7 +202,7 @@ public class MatchmakingAlgorithmImplementation {
 
 		UtilityUser uu = new UtilityUser();
 
-		// Our objective function simply sums up all the x_i,j.
+		 //Our objective function simply sums up all the x_i,j.
 		double[] objectiveFunction = new double[users_count * users_count];
 		int ofs = 0;
 		for (int i = 0; i < users_count * users_count; i++) {
@@ -211,7 +212,7 @@ public class MatchmakingAlgorithmImplementation {
 //				objectiveFunction[i] =0;
 				continue;
 			} else {
-
+				
 				uu = last_users.get(i / users_count);
 				objectiveFunction[i] = uu.getWeight();
 //				System.out.println(i / users_count);
@@ -220,38 +221,41 @@ public class MatchmakingAlgorithmImplementation {
 
 		}
 
+//		double[] objectiveFunction = { 0.0, 2.0, -1.88, 2.11, -1.88, 0.0, 1.51, 5.19, 1.79, 1.67, 0.0, 0, 1.21, 4.67, 0,
+//				0.0 };
+		for (double i : objectiveFunction) {
+			System.out.println(i + " ");
+		}
+
 		LinearProgram uglobal = new LinearProgram(objectiveFunction);
 		uglobal.setMinProblem(false);
 
 		/* All of the x_i,j variables are binary (0-1). */
 		for (int i = 0; i < users_count * users_count; i++) {
 			uglobal.setBinary(i);
-			
+
 		}
 
 		rowConst(users_count, uglobal);
 		System.out.println();
-		colConst(users_count, uglobal);
-		System.out.println();
-		diagConst(users_count, uglobal);
 
-		System.out.println("\nStarting calculations . . .\n");
-		StringBuffer s = uglobal.convertToCPLEX();
-		System.out.println(s);
-//
-//		LinearProgramSolver solver = SolverFactory.newDefault();
-//		double[] solution = solver.solve(uglobal);
-//		System.out.println("\nThe calculations ended . . .\n");
+//		System.out.println("\nStarting calculations . . .\n");
+//		StringBuffer s = uglobal.convertToCPLEX();
+//		System.out.println(s);
+
+		LinearProgramSolver solver = SolverFactory.newDefault();
+		double[] solution = solver.solve(uglobal);
 //		System.out.print(uglobal.convertToCPLEX());
-//
-//		// Print the solution for the pairing
-//		System.out.println();
-//		for (int i = 0; i < users_count; i++) {
-//			for (int j = 0; j < users_count; j++) {
-//				System.out.print("x" + (j + 1) + "," + (i + 1) + "=" + (int) solution[users_count * j + i] + "  ");
-//			}
-//			System.out.println();
-//		}
+//		System.out.println("\nThe calculations ended . . .\n");
+		
+		// Print the solution for the pairing
+		System.out.println();
+		for (int i = 0; i < users_count; i++) {
+			for (int j = 0; j < users_count; j++) {
+				System.out.print("x" + (j + 1) + "," + (i + 1) + "=" + (int) solution[users_count * j + i] + "  ");
+			}
+			System.out.println();
+		}
 
 	}
 
@@ -260,105 +264,48 @@ public class MatchmakingAlgorithmImplementation {
 	 * from j=1 to n of x_i,j = 1 for all i=1,...,n.
 	 */
 	public static void rowConst(int n, LinearProgram lp) {
-		int counter = 0;
 
 		double[][] rowConstArr = new double[n][n * n];
 
 		for (int row = 0; row < n; row++) {
 			for (int column = n * row; column < n * row + n; column++) {
-				rowConstArr[row][column] = 1;
+				if (row != column)
+					rowConstArr[row][column] = 1;
+				else
+					rowConstArr[row][column] = 0;
 				// System.out.print((int) rowConstArr[row][column] + " ");
 			}
 			// System.out.println();
+			lp.addConstraint(new LinearEqualsConstraint(rowConstArr[row], 1, "r" + row));
 		}
 
-		for (double[] row : rowConstArr) {
-
-			lp.addConstraint(new LinearEqualsConstraint(row, 1, "r" + counter));
-			counter++;
-
-		}
-		System.out.println("Row constraints");
-		printConstraints(rowConstArr);
-
-	}
-
-	/**
-	 * Adds the "one user per column" constraints to the linear program, ie. the sum
-	 * from i=1 to n of x_i,j = 1 for all j=1,...,n.
-	 */
-	public static void colConst(int n, LinearProgram lp) {
-		int counter = 0;
-		double[][] colConstArr = new double[n][n * n];
-
+		double[][] rowConstArr2 = new double[n * n][n * n];
 		for (int row = 0; row < n; row++) {
-			for (int column = row; column < n * n; column += n) {
-				colConstArr[row][column] = 1;
-				// System.out.print((int) colConstArr[row][column] + " ");
-			}
-			// System.out.println();
-		}
-
-		for (double[] row : colConstArr) {
-
-			lp.addConstraint(new LinearEqualsConstraint(row, 1, "c" + counter));
-			counter++;
-
-		}
-
-		System.out.println("Column constraints");
-		printConstraints(colConstArr);
-
-	}
-
-	public static void diagConst(int n, LinearProgram lp) {
-		int counter = 0;
-
-//		double[][] diagConstArr = new double[n][n * n];
-//		for (int row = 0; row < n; row++) {
-//			for (int column = n * row; column < n * n; column += (n + 1)) {
-//				diagConstArr[row][column] = 1;
-//				System.out.print(diagConstArr[row][column] + " ");
-//			}
-//			System.out.println();
-//		}
-//
-//		for (double[] row : diagConstArr) {
-//			System.out.print(row[counter] + " ");
-//			lp.addConstraint(new LinearSmallerThanEqualsConstraint(row, 1, "d" + counter));
-//			counter++;
-//
-//		}
-//		System.out.println("Diagonal constraints");
-//		printConstraints(diagConstArr);
-//
-//		counter = 0;
-
-		double[][] diagConstArrB = new double[n][n * n];
-		for (int row = 0; row < n; row++) {
-			for (int column = n * row; column < n * n; column += 1) {
-				if (column == (n * row + row)) {
-					for (int k = 0; k < n; k++)
-						diagConstArrB[k][column] = 1;
-					// System.out.print(diagConstArrB[row][column] + " ");
+			for (int column = 0; column < n; column++) {
+				// build constraint for element x_row_column
+				int vindex = row * n + column;
+				// initialize all coefficients to zero
+				for (int k = 0; k < n * n; k++)
+					rowConstArr2[vindex][k] = 0;
+				if (row == column) {
+					// diagonal elements have a restriction element = 0
+					rowConstArr2[vindex][vindex] = 1;
+				} else {
+					// non-diagonal elements implement the restriction x_ij = x_ji.
+					// Variable x_ij = row*n + column;
+					// variable x_ji = column * n + row
+					rowConstArr2[vindex][vindex] = 1;
+					rowConstArr2[vindex][column * n + row] = -1;
 				}
+				lp.addConstraint(new LinearEqualsConstraint(rowConstArr2[vindex], 0, "vc" + vindex));
 
 			}
-			// System.out.println();
 		}
 
-		for (double[] row : diagConstArrB) {
-			if (n % 2 == 0) {
-				lp.addConstraint(new LinearEqualsConstraint(row, 0, "d" + counter));
-				counter++;
-			} else {
-				lp.addConstraint(new LinearEqualsConstraint(row, 1, "d" + counter));
-				counter++;
-			}
-
-		}
-		System.out.println("Diagonal constraints B");
-		printConstraints(diagConstArrB);
+//		System.out.println("Row constraints");
+//		printConstraints(rowConstArr);
+//		System.out.println("Other constraints");
+//		printConstraints(rowConstArr2);
 
 	}
 
@@ -456,7 +403,6 @@ public class MatchmakingAlgorithmImplementation {
 	private ArrayList<UtilityUser> utility_per_user_calculator(ArrayList<UtilityUser> utility_per_user) {
 
 		ArrayList<UtilityUser> utility_user = new ArrayList<UtilityUser>();
-		Random rand = new Random();
 
 		UtilityUser uu = new UtilityUser();
 		UtilityUser uu_j = new UtilityUser();
@@ -507,7 +453,7 @@ public class MatchmakingAlgorithmImplementation {
 	// TODO this function is to be removed, using global_utilityFunc2
 	private ArrayList<UserPairAssignment> global_utilityFunc(ArrayList<UtilityUser> global_utility) throws IOException {
 		ArrayList<UserPairAssignment> utility_pair = new ArrayList<UserPairAssignment>();
-		Random rand = new Random();
+
 		int x_ij = 0;
 		int x_ji = 0;
 		UtilityUser uu = new UtilityUser();
