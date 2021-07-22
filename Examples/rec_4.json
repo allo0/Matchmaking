@@ -1,4 +1,4 @@
-  {
+{
   "userGlobalScores": [
       {
         "userId": "test1",
@@ -31,6 +31,50 @@
   "userPairwiseScore": [
       
       {
+        "gradingUser": "test1",
+        "scoresGiven": [
+          {
+            "userId": "test2",
+            "score": {
+              "quality": 4.8,
+              "collaboration": 4.1
+            }
+          }
+        ]
+      },{
+        "gradingUser": "test2",
+        "scoresGiven": [
+          {
+            "userId": "test1",
+            "score": {
+              "quality": 4.8,
+              "collaboration": 4.1
+            }
+          }
+        ]
+      },{
+        "gradingUser": "test1",
+        "scoresGiven": [
+          {
+            "userId": "test4",
+            "score": {
+              "quality": 4.8,
+              "collaboration": 4.1
+            }
+          }
+        ]
+      },{
+        "gradingUser": "test4",
+        "scoresGiven": [
+          {
+            "userId": "test1",
+            "score": {
+              "quality": 4.8,
+              "collaboration": 4.1
+            }
+          }
+        ]
+      },{
         "gradingUser": "test3",
         "scoresGiven": [
           {
@@ -84,8 +128,42 @@
         "gradingUser": "test2",
         "intentions": [
           {
-            "userId": "test4",
+            "userId": "test1",
             "intention": "want"
+          }
+        ]
+      }, {
+        "gradingUser": "test1",
+        "intentions": [
+          {
+            "userId": "test2",
+            "intention": "idc"
+          }
+        ]
+      },
+      {
+        "gradingUser": "test4",
+        "intentions": [
+          {
+            "userId": "test1",
+            "intention": "dwant"
+          }
+        ]
+      },
+      {
+        "gradingUser": "test1",
+        "intentions": [
+          {
+            "userId": "test4",
+            "intention": "idc"
+          }
+        ]
+      },{
+        "gradingUser": "test2",
+        "intentions": [
+          {
+            "userId": "test4",
+            "intention": "dwant"
           }
         ]
       }, {
@@ -93,7 +171,7 @@
         "intentions": [
           {
             "userId": "test1",
-            "intention": "want"
+            "intention": "dwant"
           }
         ]
       },
@@ -111,7 +189,7 @@
         "intentions": [
           {
             "userId": "test3",
-            "intention": "dwant"
+            "intention": "want"
           }
         ]
       }

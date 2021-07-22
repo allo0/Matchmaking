@@ -28,9 +28,8 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="/home/json_mark/Documents/GitHub/Matchmaking/Exterrnal_libs/glpk-java.jar"/>
-	<classpathentry kind="lib" path="/home/json_mark/Documents/GitHub/Matchmaking/Exterrnal_libs/SCPSolver.jar"/>
-	<classpathentry kind="lib" path="/home/json_mark/Documents/GitHub/Matchmaking/Exterrnal_libs/LPSOLVESolverPack.jar"/>
-	<classpathentry kind="lib" path="/home/json_mark/Documents/GitHub/Matchmaking/Exterrnal_libs/GLPKSolverPack.jar"/>
+	<classpathentry kind="lib" path="D:/Documents/Desktop/Matchmaking/Exterrnal_libs/GLPKSolverPack.jar"/>
+	<classpathentry kind="lib" path="D:/Documents/Desktop/Matchmaking/Exterrnal_libs/LPSOLVESolverPack.jar"/>
+	<classpathentry kind="lib" path="D:/Documents/Desktop/Matchmaking/Exterrnal_libs/SCPSolver.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

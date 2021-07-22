@@ -27,8 +27,7 @@ public class MatchmakingAlgorithmImplementation {
 	boolean played_again = false;
 	String intentions;
 	float weight = 0;
-	String[][] user2 = null;
-	String[][] user1 = null;
+
 	int users_count = 0;
 	int users_count2 = 0;
 
@@ -47,39 +46,8 @@ public class MatchmakingAlgorithmImplementation {
 		// initialized with null so as if the size of the UserPairwiseScore is <
 		// than the UserScore we can somehow use it in the maximization problem
 		users_count = list.size();
-//		users_count2 = list2.size();
-//		UserScore us1 = new UserScore();
-//		UserScore us2 = new UserScore();
-//		user2 = new String[users_count][users_count];
-//		user1 = new String[users_count][users_count];
-//		for (int i = 0; i < users_count; i++) {
-//			us2 = list.get(i);
-//			for (int j = 0; j < users_count; j++) {
-//				us1 = list.get(j);
-//
-//				if (i == j) {
-//					user1[i][j] = "0";
-//					user2[i][j] = "0";
-//				} else {
-//					user2[i][j] = us2.getUserId();
-//					user1[i][j] = us1.getUserId();
-//				}
-//
-//			}
-//
-//		}
-//		for (int i = 0; i < users_count; i++) {
-//			for (int j = 0; j < users_count; j++) {
-//				System.out.print(user2[i][j] + " ");
-//			}
-//			System.out.println();
-//		}
-//		for (int i = 0; i < users_count; i++) {
-//			for (int j = 0; j < users_count; j++) {
-//				System.out.print(user1[i][j] + " ");
-//			}
-//			System.out.println();
-//		}
+		
+		
 
 		System.out.println("------------------------------------");
 		System.out.println("Main");
@@ -160,6 +128,8 @@ public class MatchmakingAlgorithmImplementation {
 //			return s1.getUser_i().compareToIgnoreCase(s2.getUser_i());
 //		});
 		global_utility.sort(Comparator.comparing(UtilityUser::getUser_i).thenComparing(UtilityUser::getUser_j));
+		
+		
 /////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
 
 /////////// ~~~~~global utility function~~~~~~///////////////
@@ -167,6 +137,7 @@ public class MatchmakingAlgorithmImplementation {
 		temp_res = global_utilityFunc(global_utility);
 
 		tettt = global_utilityFunc2(global_utility);
+		tettt.sort(Comparator.comparing(UtilityUser::getUser_i).thenComparing(UtilityUser::getUser_j));
 		try {
 			// maximization problem
 			maximize_lp(tettt);
@@ -213,7 +184,7 @@ public class MatchmakingAlgorithmImplementation {
 				continue;
 			} else {
 				
-				uu = last_users.get(i / users_count);
+				uu = last_users.get(i / (2));
 				objectiveFunction[i] = uu.getWeight();
 //				System.out.println(i / users_count);
 //				continue;
@@ -223,6 +194,7 @@ public class MatchmakingAlgorithmImplementation {
 
 //		double[] objectiveFunction = { 0.0, 2.0, -1.88, 2.11, -1.88, 0.0, 1.51, 5.19, 1.79, 1.67, 0.0, 0, 1.21, 4.67, 0,
 //				0.0 };
+		System.out.println();
 		for (double i : objectiveFunction) {
 			System.out.println(i + " ");
 		}
@@ -239,14 +211,14 @@ public class MatchmakingAlgorithmImplementation {
 		rowConst(users_count, uglobal);
 		System.out.println();
 
-//		System.out.println("\nStarting calculations . . .\n");
+		System.out.println("\nStarting calculations . . .\n");
 //		StringBuffer s = uglobal.convertToCPLEX();
 //		System.out.println(s);
 
 		LinearProgramSolver solver = SolverFactory.newDefault();
 		double[] solution = solver.solve(uglobal);
 //		System.out.print(uglobal.convertToCPLEX());
-//		System.out.println("\nThe calculations ended . . .\n");
+		System.out.println("\nThe calculations ended . . .\n");
 		
 		// Print the solution for the pairing
 		System.out.println();
@@ -563,7 +535,7 @@ public class MatchmakingAlgorithmImplementation {
 					tmp.setWeight(uu.getWeight());
 
 					utility_user.add(tmp);
-
+System.out.println(uu.getWeight());
 					break;
 
 				} else
