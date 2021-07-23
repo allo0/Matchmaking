@@ -4,16 +4,14 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Scanner;
 
 import org.apache.commons.collections4.MapIterator;
 import org.apache.commons.collections4.keyvalue.MultiKey;
 import org.apache.commons.collections4.map.LinkedMap;
 import org.apache.commons.collections4.map.MultiKeyMap;
-import java.util.Scanner;
 
 import io.swagger.model.UserCollaborationIntentions;
 import io.swagger.model.UserCollaborationSpec;
@@ -29,45 +27,37 @@ import scpsolver.problems.LinearProgram;
 
 public class MatchmakingAlgorithmImplementation {
 
-	boolean played_again = false;
 	String intentions;
+	boolean played_again = false;
 	float weight = 0;
-	String[] users = null;
 	int users_count = 0;
-	int users_count2 = 0;
+
+	
 	MultiKeyMap multiKeyMap = MultiKeyMap.multiKeyMap(new LinkedMap());
 
 	public ArrayList<UserPairAssignment> final_pair(List<UserScore> list, List<UserPairwiseScore> list2,
 			List<UserCollaborationIntentions> list3) throws IOException {
 
-		ArrayList<UtilityUser> global_utility = new ArrayList<UtilityUser>();
-		ArrayList<UtilityUser> utility_per_user = new ArrayList<UtilityUser>();
-		ArrayList<UserPairAssignment> temp_res = new ArrayList<UserPairAssignment>();
-		ArrayList<UtilityUser> tettt = new ArrayList<UtilityUser>();
+		ArrayList<UtilityUser> global_utility = new ArrayList<>();
+		ArrayList<UtilityUser> utility_per_user = new ArrayList<>();
+		ArrayList<UserPairAssignment> temp_res = new ArrayList<>();
+		ArrayList<UtilityUser> tettt = new ArrayList<>();
 		UserScore us = new UserScore();
 		UtilityUser utility_user;
 
-		// Testing
-		// Create the arrays for the weight and the x_ij of the players
-		// initialized with null so as if the size of the UserPairwiseScore is <
-		// than the UserScore we can somehow use it in the maximization problem
 		users_count = list.size();
-		users = new String[users_count];
 
-		for (int i = 0; i < users_count; i++) {
-			users[i] = list.get(i).getUserId();
-		}
-
+		/*
+		 * Create an dictionary with all the users' possible combinations with the 2
+		 * users each time as Keys and an index as values e.g : [user_1,user_2],2
+		 */
 		int cnt_temp = 0;
 		for (int i = 0; i < users_count; i++) {
 			for (int j = 0; j < users_count; j++) {
-
-				multiKeyMap.put(users[i], users[j], cnt_temp);
+				multiKeyMap.put(list.get(i).getUserId(), list.get(j).getUserId(), cnt_temp);
 				cnt_temp++;
 			}
-
 		}
-//		multiKeyMap.forEach((key1, key2) -> System.out.println("Keys set" + key1 + " : Values " + key2));
 
 		System.out.println("------------------------------------");
 		System.out.println("Main");
@@ -76,21 +66,19 @@ public class MatchmakingAlgorithmImplementation {
 		UserPairwiseScore ups = null;
 
 		// Iterate through the UPS list
-		for (int a = 0; a < list2.size(); a++) {
-			ups = list2.get(a);
+		for (UserPairwiseScore element : list2) {
+			ups = element;
 			UserPairwiseScore ups_2 = null;
 			// Iterate through the UPS list again so we can get the nested users
-			for (int b = 0; b < list2.size(); b++) {
+			for (UserPairwiseScore element2 : list2) {
 				utility_user = new UtilityUser();
-				ups_2 = list2.get(b);
+				ups_2 = element2;
 				us = ups_2.getScoresGiven().get(0);
 
-//				// Check if the Outter user is the same as the nested one
+				// Check if the Outter user is the same as the nested one
 				if (ups.getGradingUser().equals(ups_2.getGradingUser())
 						&& ups.getScoresGiven().get(0).getUserId().equals(ups_2.getScoresGiven().get(0).getUserId())) {
-					// Check if the Outter user is the same as the nested one
-//				if (ups.getGradingUser().equals(ups_2.getScoresGiven().get(0).getUserId())
-//						&& ups.getScoresGiven().get(0).getUserId().equals(ups_2.getGradingUser())) {
+
 					// System.out.println("The users match:");
 					// System.out.println(" ups.getGradingUser(): " + ups.getGradingUser());
 					// System.out.println(" ups_2.getGradingUser(): " + ups_2.getGradingUser());
@@ -137,25 +125,26 @@ public class MatchmakingAlgorithmImplementation {
 
 		}
 
-/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
-		// call utility per user, to get the utility of each player
-		// with all others he has played with
+		/*
+		 * call utility per user, to get the utility of each player with all others he
+		 * has played with
+		 */
 		global_utility = utility_per_user_calculator(utility_per_user);
-/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
 
-/////////// ~Sorting the arraylist~///////////////
-//		Collections.sort(global_utility, (UtilityUser s1, UtilityUser s2) -> {
-//			return s1.getUser_i().compareToIgnoreCase(s2.getUser_i());
-//		});
+		/*
+		 * Sort the arraylist on 2 levels, first by the user_i and then by the user_j
+		 */
 		global_utility.sort(Comparator.comparing(UtilityUser::getUser_i).thenComparing(UtilityUser::getUser_j));
 
-/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
-
-/////////// ~~~~~global utility function~~~~~~///////////////
+		/////////// ~~~~~global utility function~~~~~~///////////////
 
 		temp_res = global_utilityFunc(global_utility);
 
 		tettt = global_utilityFunc2(global_utility);
+		/*
+		 * Sort the arraylist a second time. So it can be in the same order as the
+		 * dictionary
+		 */
 		tettt.sort(Comparator.comparing(UtilityUser::getUser_i).thenComparing(UtilityUser::getUser_j));
 		try {
 			// maximization problem
@@ -164,7 +153,7 @@ public class MatchmakingAlgorithmImplementation {
 			System.out.println("Something went wrong: " + e);
 		}
 
-/////////// ~~~~~~~printing the dump text~~~~~~~///////////////
+		/////////// ~~~~~~~printing the dump text~~~~~~~///////////////
 		String user_i, user_j;
 		String weight;
 		Scanner read = new Scanner(new File("temp_file.txt"));
@@ -179,8 +168,7 @@ public class MatchmakingAlgorithmImplementation {
 			System.out.print(user_i + " " + user_j + " " + weight + "\n");
 		}
 		read.close();
-
-/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
+		/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
 
 		// it will return the results from global_utilityFunc2, not global_utilityFunc
 		// (which will be removed)
@@ -194,84 +182,28 @@ public class MatchmakingAlgorithmImplementation {
 
 		// Our objective function simply sums up all the x_i,j.
 		double[] objectiveFunction = new double[users_count * users_count];
-//		
-//
-//		int ofs = 0;
-//		for (int i = 0; i < users_count * users_count; i++) {
-//			if (i == (users_count * ofs + ofs)) { // ignore the elements that are on the "diagonal"
-//
-//				ofs++;
-////				objectiveFunction[i] =0;
-//				continue;
-//			} else {
-//
-//				uu = last_users.get(i / 2);
-//				objectiveFunction[i] = uu.getWeight();
-//
-////				continue;
-//			}
-//
-//		}
-		System.out.println(last_users.size());
-		int counter = 0;
-		int counter_for_of = 0;
+
+		/*
+		 * Iterate through the (sorted) Arraylist and the Dictionary. when a pair is
+		 * found e.g user_1,user_3 then the weight of the pair is inserted in the
+		 * objectiveFunction in the position specified by the Dictionary
+		 */
 		MapIterator it = multiKeyMap.mapIterator();
-		Iterator it_last_users = last_users.iterator();
-		while (it.hasNext()) {
+		for (UtilityUser last_user : last_users) {
+			uu = last_user;
+			while (it.hasNext()) {
 
-			it.next();
-//			System.out.println((int) it.getValue());
+				it.next();
+				MultiKey mk = (MultiKey) it.getKey();
 
-			MultiKey mk = (MultiKey) it.getKey();
-
-//			if (counter < last_users.size()) {
-
-			// To make the value of the diagonal elements 0
-			if (mk.getKey(0).equals(mk.getKey(1))) {
-				objectiveFunction[counter_for_of] = 0;
-			} else {
-//					uu = last_users.get(counter);
-//					if (uu.getUser_i().equals(mk.getKey(0)) && uu.getUser_j().equals(mk.getKey(1))) {
-//						
-//						System.out.print(mk.getKey(0) + " " + mk.getKey(1) + " " + it.getValue() + "\n");
-//						System.out.print(uu.getUser_i() + " " + uu.getUser_j() + " " + uu.getWeight() + "\n");
-//						objectiveFunction[counter_for_of] = uu.getWeight();
-//					}
-//					else {
-//						
-//						objectiveFunction[counter_for_of] = 0;
-//					}
-//					counter++;
-
-//				System.out.println(last_users.get(counter_for_of-1).getUser_i());
-				// If the UtilityUser arraylist is not empty
-				if (it_last_users.hasNext()) {
-					uu = last_users.get(counter_for_of - 1);
-					// If there is a match in the arraylist with the double key map
-					if (uu.getUser_i().equals(mk.getKey(0)) && uu.getUser_j().equals(mk.getKey(1))) {
-//						objectiveFunction[counter_for_of] = uu.getWeight();
-						System.out.print("1) " + mk.getKey(0) + " " + mk.getKey(1) + " " + it.getValue() + "\n");
-						System.out.print(uu.getUser_i() + " " + uu.getUser_j() + " " + uu.getWeight() + "\n");
-					} else {
-						if ((counter_for_of-1) == (int) it.getValue()
-								&& (uu.getUser_i().equals(mk.getKey(0)) || !uu.getUser_j().equals(mk.getKey(1)))) {
-							System.out.print("2) " + mk.getKey(0) + " " + mk.getKey(1) + " " + it.getValue() + "\n");
-							System.out.print(uu.getUser_i() + " " + uu.getUser_j() + " " + uu.getWeight() + "\n");
-						} else {
-							objectiveFunction[counter_for_of] = 0;
-							System.out.print("3) " + mk.getKey(0) + " " + mk.getKey(1) + " " + it.getValue() + "\n");
-							System.out.print(uu.getUser_i() + " " + uu.getUser_j() + " " + uu.getWeight() + "\n");
-						}
-
-					}
-
+				if (uu.getUser_i().equals(mk.getKey(0)) && uu.getUser_j().equals(mk.getKey(1))) {
+					objectiveFunction[(int) it.getValue()] = uu.getWeight();
+					break;
 				} else {
-					objectiveFunction[counter_for_of] = 0;
+					objectiveFunction[(int) it.getValue()] = 0;
 				}
 
 			}
-			System.out.println(objectiveFunction[counter_for_of]);
-			counter_for_of++;
 		}
 
 //		double[] objectiveFunction = { 0.0, 2.0, -1.88, 2.11, -1.88, 0.0, 1.51, 5.19, 1.79, 1.67, 0.0, 0, 1.21, 4.67, 0,
@@ -298,18 +230,18 @@ public class MatchmakingAlgorithmImplementation {
 //		System.out.println(s);
 
 		LinearProgramSolver solver = SolverFactory.newDefault();
-		double[] solution = solver.solve(uglobal);
+//		double[] solution = solver.solve(uglobal);
 //		System.out.print(uglobal.convertToCPLEX());
 		System.out.println("\nThe calculations ended . . .\n");
 
 		// Print the solution for the pairing
-		System.out.println();
-		for (int i = 0; i < users_count; i++) {
-			for (int j = 0; j < users_count; j++) {
-				System.out.print("x" + (j + 1) + "," + (i + 1) + "=" + (int) solution[users_count * j + i] + "  ");
-			}
-			System.out.println();
-		}
+//		System.out.println();
+//		for (int i = 0; i < users_count; i++) {
+//			for (int j = 0; j < users_count; j++) {
+//				System.out.print("x" + (j + 1) + "," + (i + 1) + "=" + (int) solution[users_count * j + i] + "  ");
+//			}
+//			System.out.println();
+//		}
 
 	}
 
@@ -364,9 +296,9 @@ public class MatchmakingAlgorithmImplementation {
 	}
 
 	public static void printConstraints(double[][] constr_arr) {
-		for (int i = 0; i < constr_arr.length; i++) {
-			for (int j = 0; j < constr_arr[i].length; j++) {
-				System.out.print((int) constr_arr[i][j] + " ");
+		for (double[] element : constr_arr) {
+			for (int j = 0; j < element.length; j++) {
+				System.out.print((int) element[j] + " ");
 			}
 			System.out.println();
 		}
@@ -392,25 +324,25 @@ public class MatchmakingAlgorithmImplementation {
 		 * weight = 1; } else if (played_again == false && intentions ==
 		 * IntentionEnum.IDC.toString()) { weight = 0; }
 		 */
-		if (played_again == true && intentions == IntentionEnum.WANT.toString()) {
+		if (played_again && intentions == IntentionEnum.WANT.toString()) {
 			// System.out.println("~1~");
 			weight = 1 + (((us.getScore().getColaboration() + us_2.getScore().getColaboration()) / 2
 					+ (us.getScore().getQuality() + us_2.getScore().getQuality()) / 2) / 10);
-		} else if (played_again == true && intentions == IntentionEnum.DWANT.toString()) {
+		} else if (played_again && intentions == IntentionEnum.DWANT.toString()) {
 			// System.out.println("~2~");
 			weight = -2 + (((us.getScore().getColaboration() + us_2.getScore().getColaboration()) / 2
 					+ (us.getScore().getQuality() + us_2.getScore().getQuality()) / 2) / 10);
-		} else if (played_again == true && intentions == IntentionEnum.IDC.toString()) {
+		} else if (played_again && intentions == IntentionEnum.IDC.toString()) {
 			// System.out.println("~3~");
 			weight = (float) (-0.5 + ((us.getScore().getColaboration() + us_2.getScore().getColaboration()) / 2
 					+ (us.getScore().getQuality() + us_2.getScore().getQuality()) / 2) / 10);
-		} else if (played_again == false && intentions == IntentionEnum.WANT.toString()) {
+		} else if (!played_again && intentions == IntentionEnum.WANT.toString()) {
 			// System.out.println("~4~");
 			weight = 1 + (us_2.getScore().getColaboration() + us_2.getScore().getQuality() / 10);
-		} else if (played_again == false && intentions == IntentionEnum.DWANT.toString()) {
+		} else if (!played_again && intentions == IntentionEnum.DWANT.toString()) {
 			// System.out.println("~5~");
 			weight = -2 + (us_2.getScore().getColaboration() + us_2.getScore().getQuality() / 10);
-		} else if (played_again == false && intentions == IntentionEnum.IDC.toString()) {
+		} else if (!played_again && intentions == IntentionEnum.IDC.toString()) {
 			// System.out.println("~6~");
 			weight = (float) (-0.5 + (us_2.getScore().getColaboration() + us_2.getScore().getQuality()) / 10);
 		}
@@ -426,15 +358,15 @@ public class MatchmakingAlgorithmImplementation {
 
 		// Iterate through the List with the Intentions for the players,
 		// in order to get the outter player
-		for (int i = 0; i < collaboration_intentions.size(); i++) {
-			uci = collaboration_intentions.get(i);
+		for (UserCollaborationIntentions collaboration_intention : collaboration_intentions) {
+			uci = collaboration_intention;
 			List<UserCollaborationSpec> uci_2;
 
 			// Iterate again through the List with the Intentions for the players,
 			// in order to get the nested player
-			for (int j = 0; j < collaboration_intentions.size(); j++) {
-				uci_tmp = collaboration_intentions.get(j);
-				uci_2 = collaboration_intentions.get(j).getIntentions();
+			for (UserCollaborationIntentions collaboration_intention2 : collaboration_intentions) {
+				uci_tmp = collaboration_intention2;
+				uci_2 = collaboration_intention2.getIntentions();
 
 				// Check if the Outter user is the one that is getting graded
 				if (uci.getGradingUser().equals(gradee) && gradee.equals(uci_tmp.getGradingUser())) {
@@ -456,7 +388,7 @@ public class MatchmakingAlgorithmImplementation {
 
 	private ArrayList<UtilityUser> utility_per_user_calculator(ArrayList<UtilityUser> utility_per_user) {
 
-		ArrayList<UtilityUser> utility_user = new ArrayList<UtilityUser>();
+		ArrayList<UtilityUser> utility_user = new ArrayList<>();
 
 		UtilityUser uu = new UtilityUser();
 		UtilityUser uu_j = new UtilityUser();
@@ -506,7 +438,7 @@ public class MatchmakingAlgorithmImplementation {
 
 	// TODO this function is to be removed, using global_utilityFunc2
 	private ArrayList<UserPairAssignment> global_utilityFunc(ArrayList<UtilityUser> global_utility) throws IOException {
-		ArrayList<UserPairAssignment> utility_pair = new ArrayList<UserPairAssignment>();
+		ArrayList<UserPairAssignment> utility_pair = new ArrayList<>();
 
 		int x_ij = 0;
 		int x_ji = 0;
@@ -569,7 +501,7 @@ public class MatchmakingAlgorithmImplementation {
 
 	private ArrayList<UtilityUser> global_utilityFunc2(ArrayList<UtilityUser> global_utility) throws IOException {
 
-		ArrayList<UtilityUser> utility_user = new ArrayList<UtilityUser>();
+		ArrayList<UtilityUser> utility_user = new ArrayList<>();
 
 		int x_ij = 0;
 		int x_ji = 0;
