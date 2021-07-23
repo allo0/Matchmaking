@@ -6,8 +6,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.collections4.MapIterator;
+import org.apache.commons.collections4.keyvalue.MultiKey;
+import org.apache.commons.collections4.map.LinkedMap;
+import org.apache.commons.collections4.map.MultiKeyMap;
 import java.util.Scanner;
 
 import io.swagger.model.UserCollaborationIntentions;
@@ -27,9 +32,10 @@ public class MatchmakingAlgorithmImplementation {
 	boolean played_again = false;
 	String intentions;
 	float weight = 0;
-
+	String[] users = null;
 	int users_count = 0;
 	int users_count2 = 0;
+	MultiKeyMap multiKeyMap = MultiKeyMap.multiKeyMap(new LinkedMap());
 
 	public ArrayList<UserPairAssignment> final_pair(List<UserScore> list, List<UserPairwiseScore> list2,
 			List<UserCollaborationIntentions> list3) throws IOException {
@@ -46,8 +52,22 @@ public class MatchmakingAlgorithmImplementation {
 		// initialized with null so as if the size of the UserPairwiseScore is <
 		// than the UserScore we can somehow use it in the maximization problem
 		users_count = list.size();
-		
-		
+		users = new String[users_count];
+
+		for (int i = 0; i < users_count; i++) {
+			users[i] = list.get(i).getUserId();
+		}
+
+		int cnt_temp = 0;
+		for (int i = 0; i < users_count; i++) {
+			for (int j = 0; j < users_count; j++) {
+
+				multiKeyMap.put(users[i], users[j], cnt_temp);
+				cnt_temp++;
+			}
+
+		}
+//		multiKeyMap.forEach((key1, key2) -> System.out.println("Keys set" + key1 + " : Values " + key2));
 
 		System.out.println("------------------------------------");
 		System.out.println("Main");
@@ -128,8 +148,7 @@ public class MatchmakingAlgorithmImplementation {
 //			return s1.getUser_i().compareToIgnoreCase(s2.getUser_i());
 //		});
 		global_utility.sort(Comparator.comparing(UtilityUser::getUser_i).thenComparing(UtilityUser::getUser_j));
-		
-		
+
 /////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
 
 /////////// ~~~~~global utility function~~~~~~///////////////
@@ -173,23 +192,86 @@ public class MatchmakingAlgorithmImplementation {
 
 		UtilityUser uu = new UtilityUser();
 
-		 //Our objective function simply sums up all the x_i,j.
+		// Our objective function simply sums up all the x_i,j.
 		double[] objectiveFunction = new double[users_count * users_count];
-		int ofs = 0;
-		for (int i = 0; i < users_count * users_count; i++) {
-			if (i == (users_count * ofs + ofs)) { // ignore the elements that are on the "diagonal"
-
-				ofs++;
-//				objectiveFunction[i] =0;
-				continue;
-			} else {
-				
-				uu = last_users.get(i / (2));
-				objectiveFunction[i] = uu.getWeight();
-//				System.out.println(i / users_count);
+//		
+//
+//		int ofs = 0;
+//		for (int i = 0; i < users_count * users_count; i++) {
+//			if (i == (users_count * ofs + ofs)) { // ignore the elements that are on the "diagonal"
+//
+//				ofs++;
+////				objectiveFunction[i] =0;
 //				continue;
-			}
+//			} else {
+//
+//				uu = last_users.get(i / 2);
+//				objectiveFunction[i] = uu.getWeight();
+//
+////				continue;
+//			}
+//
+//		}
+		System.out.println(last_users.size());
+		int counter = 0;
+		int counter_for_of = 0;
+		MapIterator it = multiKeyMap.mapIterator();
+		Iterator it_last_users = last_users.iterator();
+		while (it.hasNext()) {
 
+			it.next();
+//			System.out.println((int) it.getValue());
+
+			MultiKey mk = (MultiKey) it.getKey();
+
+//			if (counter < last_users.size()) {
+
+			// To make the value of the diagonal elements 0
+			if (mk.getKey(0).equals(mk.getKey(1))) {
+				objectiveFunction[counter_for_of] = 0;
+			} else {
+//					uu = last_users.get(counter);
+//					if (uu.getUser_i().equals(mk.getKey(0)) && uu.getUser_j().equals(mk.getKey(1))) {
+//						
+//						System.out.print(mk.getKey(0) + " " + mk.getKey(1) + " " + it.getValue() + "\n");
+//						System.out.print(uu.getUser_i() + " " + uu.getUser_j() + " " + uu.getWeight() + "\n");
+//						objectiveFunction[counter_for_of] = uu.getWeight();
+//					}
+//					else {
+//						
+//						objectiveFunction[counter_for_of] = 0;
+//					}
+//					counter++;
+
+//				System.out.println(last_users.get(counter_for_of-1).getUser_i());
+				// If the UtilityUser arraylist is not empty
+				if (it_last_users.hasNext()) {
+					uu = last_users.get(counter_for_of - 1);
+					// If there is a match in the arraylist with the double key map
+					if (uu.getUser_i().equals(mk.getKey(0)) && uu.getUser_j().equals(mk.getKey(1))) {
+//						objectiveFunction[counter_for_of] = uu.getWeight();
+						System.out.print("1) " + mk.getKey(0) + " " + mk.getKey(1) + " " + it.getValue() + "\n");
+						System.out.print(uu.getUser_i() + " " + uu.getUser_j() + " " + uu.getWeight() + "\n");
+					} else {
+						if ((counter_for_of-1) == (int) it.getValue()
+								&& (uu.getUser_i().equals(mk.getKey(0)) || !uu.getUser_j().equals(mk.getKey(1)))) {
+							System.out.print("2) " + mk.getKey(0) + " " + mk.getKey(1) + " " + it.getValue() + "\n");
+							System.out.print(uu.getUser_i() + " " + uu.getUser_j() + " " + uu.getWeight() + "\n");
+						} else {
+							objectiveFunction[counter_for_of] = 0;
+							System.out.print("3) " + mk.getKey(0) + " " + mk.getKey(1) + " " + it.getValue() + "\n");
+							System.out.print(uu.getUser_i() + " " + uu.getUser_j() + " " + uu.getWeight() + "\n");
+						}
+
+					}
+
+				} else {
+					objectiveFunction[counter_for_of] = 0;
+				}
+
+			}
+			System.out.println(objectiveFunction[counter_for_of]);
+			counter_for_of++;
 		}
 
 //		double[] objectiveFunction = { 0.0, 2.0, -1.88, 2.11, -1.88, 0.0, 1.51, 5.19, 1.79, 1.67, 0.0, 0, 1.21, 4.67, 0,
@@ -219,7 +301,7 @@ public class MatchmakingAlgorithmImplementation {
 		double[] solution = solver.solve(uglobal);
 //		System.out.print(uglobal.convertToCPLEX());
 		System.out.println("\nThe calculations ended . . .\n");
-		
+
 		// Print the solution for the pairing
 		System.out.println();
 		for (int i = 0; i < users_count; i++) {
@@ -535,7 +617,7 @@ public class MatchmakingAlgorithmImplementation {
 					tmp.setWeight(uu.getWeight());
 
 					utility_user.add(tmp);
-System.out.println(uu.getWeight());
+
 					break;
 
 				} else
