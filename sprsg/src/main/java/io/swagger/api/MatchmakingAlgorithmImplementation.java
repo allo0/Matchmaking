@@ -91,6 +91,12 @@ public class MatchmakingAlgorithmImplementation {
 								ups.getGradingUser(), us.getUserId());
 						/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
 						// System.out.println("(alt)Intentions for the pair: " + intentions);
+						
+						/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
+						// Call the Weight for the pair function
+						weight = weight(ups, ups_2, played_again, intentions, 0, 0);
+						// System.out.println("Weight for the pair: " + weight);
+						/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
 
 					} else {
 
@@ -101,13 +107,27 @@ public class MatchmakingAlgorithmImplementation {
 						/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
 						// System.out.println("Intentions for the pair: " + intentions);
 
-					}
+						// If the 2 players haven't played again together iterate through the UserScore
+						// (list)
+						// to find the accumulative score of the user
+						UserScore us_check = new UserScore();
+						for (int i = 0; i < list.size(); i++) {
+							us_check = list.get(i);
+							if (us_check.getUserId().equals(ups.getGradingUser())) {
+								/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
+								// Call the Weight for the pair function
+								System.out.println("Quality" +  us_check.getScore().getQuality());
+								System.out.println("Collaboration" +  us_check.getScore().getColaboration());
+								weight = weight(ups, ups_2, played_again, intentions,
+										us_check.getScore().getColaboration(), us_check.getScore().getQuality());
+								System.out.println("Weight for the pair: " + weight);
+								/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
+								break;
+							}
 
-					/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
-					// Call the Weight for the pair function
-					weight = weight(ups, ups_2, played_again, intentions);
-					// System.out.println("Weight for the pair: " + weight);
-					/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
+						}
+
+					}
 
 					// Get the 2 users (outter and nested) and add them to the Utility User object
 					utility_user.setUser_i(us.getUserId());
@@ -162,7 +182,7 @@ public class MatchmakingAlgorithmImplementation {
 			user_j = read.next().trim();
 			weight = read.next().trim();
 			// x = read.next().trim();
-			//dSystem.out.print(user_i + " " + user_j + " " + weight + "\n");
+			// dSystem.out.print(user_i + " " + user_j + " " + weight + "\n");
 		}
 		read.close();
 		/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
@@ -267,7 +287,7 @@ public class MatchmakingAlgorithmImplementation {
 
 				}
 
-			} 
+			}
 
 			i++;
 		}
@@ -339,7 +359,8 @@ public class MatchmakingAlgorithmImplementation {
 		}
 	}
 
-	private float weight(UserPairwiseScore ups_i, UserPairwiseScore ups_j, boolean played_again, String intentions) {
+	private float weight(UserPairwiseScore ups_i, UserPairwiseScore ups_j, boolean played_again, String intentions,
+			float user_quality, float user_collaboration) {
 
 		float weight = 0;
 		UserScore us = new UserScore();
@@ -360,26 +381,26 @@ public class MatchmakingAlgorithmImplementation {
 		 * IntentionEnum.IDC.toString()) { weight = 0; }
 		 */
 		if (played_again && intentions == IntentionEnum.WANT.toString()) {
-			// System.out.println("~1~");
+//			System.out.println("~1~");
 			weight = 1 + (((us.getScore().getColaboration() + us_2.getScore().getColaboration()) / 2
 					+ (us.getScore().getQuality() + us_2.getScore().getQuality()) / 2) / 10);
 		} else if (played_again && intentions == IntentionEnum.DWANT.toString()) {
-			// System.out.println("~2~");
+//			System.out.println("~2~");
 			weight = -2 + (((us.getScore().getColaboration() + us_2.getScore().getColaboration()) / 2
 					+ (us.getScore().getQuality() + us_2.getScore().getQuality()) / 2) / 10);
 		} else if (played_again && intentions == IntentionEnum.IDC.toString()) {
-			// System.out.println("~3~");
+//			System.out.println("~3~");
 			weight = (float) (-0.5 + ((us.getScore().getColaboration() + us_2.getScore().getColaboration()) / 2
 					+ (us.getScore().getQuality() + us_2.getScore().getQuality()) / 2) / 10);
 		} else if (!played_again && intentions == IntentionEnum.WANT.toString()) {
-			// System.out.println("~4~");
-			weight = 1 + (us_2.getScore().getColaboration() + us_2.getScore().getQuality() / 10);
+//			System.out.println("~4~");
+			weight = 1 + ((user_collaboration + user_quality) / 10);
 		} else if (!played_again && intentions == IntentionEnum.DWANT.toString()) {
-			// System.out.println("~5~");
-			weight = -2 + (us_2.getScore().getColaboration() + us_2.getScore().getQuality() / 10);
+//			System.out.println("~5~");
+			weight = -2 + ((user_collaboration + user_quality) / 10);
 		} else if (!played_again && intentions == IntentionEnum.IDC.toString()) {
-			// System.out.println("~6~");
-			weight = (float) (-0.5 + (us_2.getScore().getColaboration() + us_2.getScore().getQuality()) / 10);
+//			System.out.println("~6~");
+			weight = (float) (-0.5 + ((user_collaboration + user_quality) / 10));
 		}
 
 		return weight;
