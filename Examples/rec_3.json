@@ -19,13 +19,6 @@
           "quality": 2.8,
           "collaboration": 1.1
         }
-      },
-        {
-        "userId": "test4",
-        "score": {
-          "quality": 3.5,
-          "collaboration": 1.5
-        }
       }
   ],
   "userPairwiseScore": [
@@ -36,35 +29,13 @@
           {
             "userId": "test2",
             "score": {
-              "quality":0,
-              "collaboration":0
-            }
-          }
-        ]
-      },{
-        "gradingUser": "test2",
-        "scoresGiven": [
-          {
-            "userId": "test1",
-            "score": {
-              "quality": 0,
-              "collaboration": 0
-            }
-          }
-        ]
-      },{
-        "gradingUser": "test1",
-        "scoresGiven": [
-          {
-            "userId": "test4",
-            "score": {
               "quality": 4.8,
               "collaboration": 4.1
             }
           }
         ]
       },{
-        "gradingUser": "test4",
+        "gradingUser": "test2",
         "scoresGiven": [
           {
             "userId": "test1",
@@ -96,30 +67,6 @@
             }
           }
         ]
-      },
-      {
-        "gradingUser": "test4",
-        "scoresGiven": [
-          {
-            "userId": "test2",
-            "score": {
-              "quality": 4.9,
-              "collaboration": 2.1
-            }
-          }
-        ]
-      },
-      {
-        "gradingUser": "test2",
-        "scoresGiven": [
-          {
-            "userId": "test4",
-            "score": {
-              "quality": 4.7,
-              "collaboration": 2.1
-            }
-          }
-        ]
       }
   ],
   "userCollaborationIntentions": [
@@ -137,32 +84,6 @@
         "intentions": [
           {
             "userId": "test2",
-            "intention": "idc"
-          }
-        ]
-      },
-      {
-        "gradingUser": "test4",
-        "intentions": [
-          {
-            "userId": "test1",
-            "intention": "dwant"
-          }
-        ]
-      },
-      {
-        "gradingUser": "test1",
-        "intentions": [
-          {
-            "userId": "test4",
-            "intention": "idc"
-          }
-        ]
-      },{
-        "gradingUser": "test2",
-        "intentions": [
-          {
-            "userId": "test4",
             "intention": "want"
           }
         ]
@@ -176,20 +97,11 @@
         ]
       },
       {
-        "gradingUser": "test4",
-        "intentions": [
-          {
-            "userId": "test2",
-            "intention": "want"
-          }
-        ]
-      },
-      {
         "gradingUser": "test1",
         "intentions": [
           {
             "userId": "test3",
-            "intention": "want"
+            "intention": "dwant"
           }
         ]
       }

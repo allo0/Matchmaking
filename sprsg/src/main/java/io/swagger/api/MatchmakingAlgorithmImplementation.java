@@ -32,7 +32,6 @@ public class MatchmakingAlgorithmImplementation {
 	float weight = 0;
 	int users_count = 0;
 
-	
 	MultiKeyMap multiKeyMap = MultiKeyMap.multiKeyMap(new LinkedMap());
 
 	public ArrayList<UserPairAssignment> final_pair(List<UserScore> list, List<UserPairwiseScore> list2,
@@ -40,8 +39,8 @@ public class MatchmakingAlgorithmImplementation {
 
 		ArrayList<UtilityUser> global_utility = new ArrayList<>();
 		ArrayList<UtilityUser> utility_per_user = new ArrayList<>();
-		ArrayList<UserPairAssignment> temp_res = new ArrayList<>();
 		ArrayList<UtilityUser> tettt = new ArrayList<>();
+		ArrayList<UserPairAssignment> final_pairs = new ArrayList<>();
 		UserScore us = new UserScore();
 		UtilityUser utility_user;
 
@@ -138,8 +137,6 @@ public class MatchmakingAlgorithmImplementation {
 
 		/////////// ~~~~~global utility function~~~~~~///////////////
 
-		temp_res = global_utilityFunc(global_utility);
-
 		tettt = global_utilityFunc2(global_utility);
 		/*
 		 * Sort the arraylist a second time. So it can be in the same order as the
@@ -148,7 +145,7 @@ public class MatchmakingAlgorithmImplementation {
 		tettt.sort(Comparator.comparing(UtilityUser::getUser_i).thenComparing(UtilityUser::getUser_j));
 		try {
 			// maximization problem
-			maximize_lp(tettt);
+			final_pairs = maximize_lp(tettt);
 		} catch (Exception e) {
 			System.out.println("Something went wrong: " + e);
 		}
@@ -165,18 +162,20 @@ public class MatchmakingAlgorithmImplementation {
 			user_j = read.next().trim();
 			weight = read.next().trim();
 			// x = read.next().trim();
-			System.out.print(user_i + " " + user_j + " " + weight + "\n");
+			//dSystem.out.print(user_i + " " + user_j + " " + weight + "\n");
 		}
 		read.close();
 		/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
 
-		// it will return the results from global_utilityFunc2, not global_utilityFunc
-		// (which will be removed)
-		return temp_res;
+//		while (final_pairs.size() != users_count / 2)
+//			final_pairs.remove(final_pairs.size() - 1);
+
+		return final_pairs;
 	}
 
-	private void maximize_lp(ArrayList<UtilityUser> last_users) {
+	private ArrayList<UserPairAssignment> maximize_lp(ArrayList<UtilityUser> last_users) {
 		/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
+		ArrayList<UserPairAssignment> final_pairs = new ArrayList<>();
 
 		UtilityUser uu = new UtilityUser();
 
@@ -206,13 +205,6 @@ public class MatchmakingAlgorithmImplementation {
 			}
 		}
 
-//		double[] objectiveFunction = { 0.0, 2.0, -1.88, 2.11, -1.88, 0.0, 1.51, 5.19, 1.79, 1.67, 0.0, 0, 1.21, 4.67, 0,
-//				0.0 };
-		System.out.println();
-		for (double i : objectiveFunction) {
-			System.out.println(i + " ");
-		}
-
 		LinearProgram uglobal = new LinearProgram(objectiveFunction);
 		uglobal.setMinProblem(false);
 
@@ -230,18 +222,56 @@ public class MatchmakingAlgorithmImplementation {
 //		System.out.println(s);
 
 		LinearProgramSolver solver = SolverFactory.newDefault();
-//		double[] solution = solver.solve(uglobal);
-//		System.out.print(uglobal.convertToCPLEX());
+		double[] solution = solver.solve(uglobal);
+		System.out.print(uglobal.convertToCPLEX());
 		System.out.println("\nThe calculations ended . . .\n");
 
 		// Print the solution for the pairing
-//		System.out.println();
-//		for (int i = 0; i < users_count; i++) {
-//			for (int j = 0; j < users_count; j++) {
-//				System.out.print("x" + (j + 1) + "," + (i + 1) + "=" + (int) solution[users_count * j + i] + "  ");
-//			}
-//			System.out.println();
-//		}
+		System.out.println();
+		for (int i = 0; i < users_count; i++) {
+			for (int j = 0; j < users_count; j++) {
+				System.out.print("x" + (j + 1) + "," + (i + 1) + "=" + (int) solution[users_count * j + i] + " ");
+			}
+			System.out.println();
+		}
+
+		/*
+		 * Get the results form the solution and with a comparison from the dictionary
+		 * add them to the final arraylist
+		 */
+		it = multiKeyMap.mapIterator();
+		int i = 0;
+
+		while (it.hasNext() && i < users_count * users_count) {
+			UserPairAssignment user_pair = new UserPairAssignment();
+			UserPairAssignment user_pair_check = new UserPairAssignment();
+			it.next();
+			MultiKey mk = (MultiKey) it.getKey();
+
+			if (solution[i] == 1) {
+
+				user_pair.setUser1((String) mk.getKey(0));
+				user_pair.setUser2((String) mk.getKey(1));
+
+				// We use the check in order to avoid adding to the final
+				// arraylist duplicate pairs AND to add the sigle player
+				// if users_count is an odd number
+				user_pair_check.setUser1((String) mk.getKey(1));
+				user_pair_check.setUser2((String) mk.getKey(0));
+
+				if (final_pairs.contains(user_pair_check)) {
+					i++;
+					continue;
+				} else {
+					final_pairs.add(user_pair);
+
+				}
+
+			} 
+
+			i++;
+		}
+		return final_pairs;
 
 	}
 
@@ -274,8 +304,12 @@ public class MatchmakingAlgorithmImplementation {
 				for (int k = 0; k < n * n; k++)
 					rowConstArr2[vindex][k] = 0;
 				if (row == column) {
-					// diagonal elements have a restriction element = 0
-					rowConstArr2[vindex][vindex] = 1;
+					// diagonal elements have a restriction element = 1 if n= even or element=0 if
+					// n= odd
+					if (n % 2 == 0)
+						rowConstArr2[vindex][vindex] = 1;
+					else
+						rowConstArr2[vindex][vindex] = 0;
 				} else {
 					// non-diagonal elements implement the restriction x_ij = x_ji.
 					// Variable x_ij = row*n + column;
@@ -283,6 +317,7 @@ public class MatchmakingAlgorithmImplementation {
 					rowConstArr2[vindex][vindex] = 1;
 					rowConstArr2[vindex][column * n + row] = -1;
 				}
+
 				lp.addConstraint(new LinearEqualsConstraint(rowConstArr2[vindex], 0, "vc" + vindex));
 
 			}
@@ -434,69 +469,6 @@ public class MatchmakingAlgorithmImplementation {
 		}
 
 		return utility_user;
-	}
-
-	// TODO this function is to be removed, using global_utilityFunc2
-	private ArrayList<UserPairAssignment> global_utilityFunc(ArrayList<UtilityUser> global_utility) throws IOException {
-		ArrayList<UserPairAssignment> utility_pair = new ArrayList<>();
-
-		int x_ij = 0;
-		int x_ji = 0;
-		UtilityUser uu = new UtilityUser();
-		UtilityUser uu_j = new UtilityUser();
-		int flag = 0;
-
-		for (int e = 0; e < global_utility.size(); e++) {
-
-			uu = global_utility.get(e);
-			UserPairAssignment trial = new UserPairAssignment();
-			UtilityUser tmp = new UtilityUser();
-
-			// check if uu.getWeight() !=0 x_ij=1 else 0
-			x_ij = uu.getWeight() != 0 ? 1 : 0;
-
-			for (int q = 0; q < global_utility.size(); q++) {
-				uu_j = global_utility.get(q);
-
-				// check if uu.getWeight() !=0 x_ji=1 else 0
-				x_ji = uu_j.getWeight() != 0 ? 1 : 0;
-
-//				 System.out.println("x_ij: " + x_ij + "\n" + "x_ji: " + x_ji);
-//				 System.out.println("uu.getWeight(): " + uu.getWeight() + "\n" +
-//				 "uu_j.getWeight(): " + uu_j.getWeight());
-
-				// if the flag!=0 it means that we added a pair
-				if (flag != 0) {
-					flag = 0;
-					break;
-
-					// xi,j=xj,i, for each i, j
-				} else if (x_ij == x_ji) {
-					tmp.setUser_i(uu.getUser_i());
-					tmp.setUser_j(uu.getUser_j());
-					tmp.setWeight(uu.getWeight());
-					trial.setUser1(tmp.getUser_i());
-					trial.setUser2(tmp.getUser_j());
-
-//					System.out.printf("%d %d\n", e, q);
-//					System.out.println("Sucess the xi=xj\nThe flag= " + flag);
-//					System.out.println("Global Utility Func");
-//					System.out.println(" User i: " + trial.getUser1());
-//					System.out.println(" User j: " + trial.getUser2());
-//					System.out.println("Global Utility Func#2");
-//					System.out.println(" User i#2: " + tmp.getUser_i());
-//					System.out.println(" User j#2: " + tmp.getUser_j());
-
-					utility_pair.add(trial);
-
-					flag++;
-					break;
-				} else
-					continue;
-			}
-		}
-
-		return utility_pair;
 	}
 
 	private ArrayList<UtilityUser> global_utilityFunc2(ArrayList<UtilityUser> global_utility) throws IOException {
