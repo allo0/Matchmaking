@@ -2,7 +2,6 @@ package io.swagger.api;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -70,6 +69,7 @@ public class MatchmakingApiController implements MatchmakingApi {
 
 				String user1;
 				String user2;
+				System.out.println("The final pairs: ");
 				for (int i = 0; i < result.size(); i++) {
 					user1 = result.get(i).getUser1();
 					user2 = result.get(i).getUser2();

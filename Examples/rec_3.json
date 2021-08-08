@@ -76,7 +76,7 @@
         "intentions": [
           {
             "userId": "test1",
-            "intention": "want"
+            "intention": "dwant"
           }
         ]
       }, {
@@ -84,7 +84,7 @@
         "intentions": [
           {
             "userId": "test2",
-            "intention": "want"
+            "intention": "dwant"
           }
         ]
       }, {
@@ -92,7 +92,7 @@
         "intentions": [
           {
             "userId": "test1",
-            "intention": "dwant"
+            "intention": "want"
           }
         ]
       },
@@ -101,7 +101,7 @@
         "intentions": [
           {
             "userId": "test3",
-            "intention": "dwant"
+            "intention": "want"
           }
         ]
       }
