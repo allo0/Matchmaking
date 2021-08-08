@@ -418,21 +418,20 @@ public class MatchmakingAlgorithmImplementation {
 						rowConstArr2[vindex][vindex] = 1;
 						rowConstArr2[vindex][column * n + row] = -1;
 					}
-					lp.addConstraint(new LinearEqualsConstraint(rowConstArr2[vindex], 0, "vc" + vindex));
+					lp.addConstraint(new LinearEqualsConstraint(rowConstArr2[vindex], 0, "vIc" + vindex));
 
 				}
 			}
 		} else {
-
 			rowConstArr2 = new double[n * n - n + 1][n * n];
 
 			int vindex = 0;
 
 			for (int row = 0; row < n; row++) {
 				for (int column = 0; column < n; column++) {
+
 					// build constraint for element x_row_column
 					// initialize all coefficients to zero
-					
 					for (int k = 0; k < n * n; k++)
 						rowConstArr2[vindex][k] = 0;
 					if (row != column) {
@@ -441,33 +440,24 @@ public class MatchmakingAlgorithmImplementation {
 						// variable x_ji = column * n + row
 						rowConstArr2[vindex][vindex] = 1;
 						rowConstArr2[vindex][column * n + row] = -1;
-						
+
 					}
-
-//					lp.addConstraint(new LinearEqualsConstraint(rowConstArr2[vindex], 0, "vc" + vindex));
-					System.out.println(vindex);
+					lp.addConstraint(new LinearEqualsConstraint(rowConstArr2[vindex], 0, "vOc" + vindex));
 					vindex++;
-
 				}
-			}
 
+			}
+			System.out.println(vindex);
 			// add the last constraint, that ensures that only one diagonial element is
 			// equal to one
-//			if (vindex <= (n * n - (n + 1))) {
-//				for (int k = 0; k < n * n; k++)
-//					rowConstArr2[vindex][k] = 0;
-//				for (int i = 0; i < n; i++)
-//					rowConstArr2[vindex][i * n + i] = 1;
-//				lp.addConstraint(new LinearEqualsConstraint(rowConstArr2[vindex], 1, "vc" + vindex));
+//			if (vindex == (n * n - n + 1)) {
+			for (int k = 0; k < n * n; k++)
+				rowConstArr2[vindex][k] = 0;
+			for (int i = 0; i < n; i++)
+				rowConstArr2[vindex][i * n + i] = 1;
+			lp.addConstraint(new LinearEqualsConstraint(rowConstArr2[vindex], 1, "vAc" + vindex));
 //			}
-//			else {
-//				vindex=(n * n - (n + 1));
-//				for (int k = 0; k < n * n; k++)
-//					rowConstArr2[vindex][k] = 0;
-//				for (int i = 0; i < n; i++)
-//					rowConstArr2[vindex][i * n + i] = 1;
-//				lp.addConstraint(new LinearEqualsConstraint(rowConstArr2[vindex], 1, "vc" + vindex));
-//			}
+
 		}
 
 //		System.out.println("Row constraints");
