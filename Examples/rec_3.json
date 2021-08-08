@@ -1,0 +1,109 @@
+{
+  "userGlobalScores": [
+      {
+        "userId": "test1",
+        "score": {
+          "quality": 3.8,
+          "collaboration": 4.1
+        }
+      },
+      {
+        "userId": "test2",
+        "score": {
+          "quality": 4.9,
+          "collaboration": 2.1
+        }
+      },{
+        "userId": "test3",
+        "score": {
+          "quality": 2.8,
+          "collaboration": 1.1
+        }
+      }
+  ],
+  "userPairwiseScore": [
+      
+      {
+        "gradingUser": "test1",
+        "scoresGiven": [
+          {
+            "userId": "test2",
+            "score": {
+              "quality": 4.8,
+              "collaboration": 4.1
+            }
+          }
+        ]
+      },{
+        "gradingUser": "test2",
+        "scoresGiven": [
+          {
+            "userId": "test1",
+            "score": {
+              "quality": 4.8,
+              "collaboration": 4.1
+            }
+          }
+        ]
+      },{
+        "gradingUser": "test3",
+        "scoresGiven": [
+          {
+            "userId": "test1",
+            "score": {
+              "quality": 4.8,
+              "collaboration": 4.1
+            }
+          }
+        ]
+      },{
+        "gradingUser": "test1",
+        "scoresGiven": [
+          {
+            "userId": "test3",
+            "score": {
+              "quality": 3.5,
+              "collaboration": 4.5
+            }
+          }
+        ]
+      }
+  ],
+  "userCollaborationIntentions": [
+     
+      {
+        "gradingUser": "test2",
+        "intentions": [
+          {
+            "userId": "test1",
+            "intention": "want"
+          }
+        ]
+      }, {
+        "gradingUser": "test1",
+        "intentions": [
+          {
+            "userId": "test2",
+            "intention": "want"
+          }
+        ]
+      }, {
+        "gradingUser": "test3",
+        "intentions": [
+          {
+            "userId": "test1",
+            "intention": "dwant"
+          }
+        ]
+      },
+      {
+        "gradingUser": "test1",
+        "intentions": [
+          {
+            "userId": "test3",
+            "intention": "dwant"
+          }
+        ]
+      }
+  ]
+}

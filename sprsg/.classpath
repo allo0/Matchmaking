@@ -20,7 +20,6 @@
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
 		<attributes>
-			<attribute name="module" value="true"/>
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
@@ -29,9 +28,8 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/temp_/SCPSolver.jar"/>
-	<classpathentry kind="lib" path="C:/temp_/glpk-java.jar"/>
-	<classpathentry kind="lib" path="C:/temp_/GLPKSolverPack.jar"/>
-	<classpathentry kind="lib" path="C:/temp_/LPSOLVESolverPack.jar"/>
+	<classpathentry kind="lib" path="D:/Documents/Desktop/Matchmaking/Exterrnal_libs/GLPKSolverPack.jar"/>
+	<classpathentry kind="lib" path="D:/Documents/Desktop/Matchmaking/Exterrnal_libs/LPSOLVESolverPack.jar"/>
+	<classpathentry kind="lib" path="D:/Documents/Desktop/Matchmaking/Exterrnal_libs/SCPSolver.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

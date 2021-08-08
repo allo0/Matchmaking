@@ -67,20 +67,21 @@ public class MatchmakingApiController implements MatchmakingApi {
 			try {
 				result = ma.final_pair(body.getUserGlobalScores(), body.getUserPairwiseScore(),
 						body.getUserCollaborationIntentions());
+
+				String user1;
+				String user2;
+				for (int i = 0; i < result.size(); i++) {
+					user1 = result.get(i).getUser1();
+					user2 = result.get(i).getUser2();
+					System.out.println(user1 + " " + user2);
+				}
+				
+				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
-//			for (int i = 0; i < users_id.size(); i += 2) {
-//				UserPairAssignment pairToAdd = new UserPairAssignment();
-//				pairToAdd.setUser1(users_id.get(i));
-//				if (i < users_id.size() - 1)
-//					pairToAdd.setUser2(users_id.get(i + 1));
-//				else
-//					pairToAdd.setUser2("");
-//				result.add(pairToAdd);
-//			}
 			return new ResponseEntity<List<UserPairAssignment>>(result, HttpStatus.OK);
 		}
 
