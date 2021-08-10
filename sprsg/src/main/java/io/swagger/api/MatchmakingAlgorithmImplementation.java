@@ -255,6 +255,7 @@ public class MatchmakingAlgorithmImplementation {
 //		System.out.println(s);
 
 		LinearProgramSolver solver = SolverFactory.newDefault();
+
 		double[] solution = solver.solve(uglobal);
 		System.out.print(uglobal.convertToCPLEX());
 		System.out.println("\nThe calculations ended . . .\n");
@@ -429,7 +430,9 @@ public class MatchmakingAlgorithmImplementation {
 
 			for (int row = 0; row < n; row++) {
 				for (int column = 0; column < n; column++) {
-
+					System.out.println(vindex);
+					if (vindex == n * n - n)
+						break;
 					// build constraint for element x_row_column
 					// initialize all coefficients to zero
 					for (int k = 0; k < n * n; k++)
@@ -447,7 +450,7 @@ public class MatchmakingAlgorithmImplementation {
 				}
 
 			}
-			System.out.println(vindex);
+
 			// add the last constraint, that ensures that only one diagonial element is
 			// equal to one
 //			if (vindex == (n * n - n + 1)) {
