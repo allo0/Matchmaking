@@ -309,80 +309,10 @@ public class MatchmakingAlgorithmImplementation {
 
 	}
 
-//	/**
-//	 * Adds the "one user per row" constraints to the linear program, ie. the sum
-//	 * from j=1 to n of x_i,j = 1 for all i=1,...,n.
-//	 */
-//	public static void rowConst(int n, LinearProgram lp) {
-//
-//		double[][] rowConstArr = new double[n][n * n];
-//		double[][] rowConstArr2;
-//
-//		for (int row = 0; row < n; row++) {
-//			for (int column = n * row; column < n * row + n; column++) {
-//				if (row != column)
-//					rowConstArr[row][column] = 1;
-//				else
-//					rowConstArr[row][column] = 0;
-//				// System.out.print((int) rowConstArr[row][column] + " ");
-//			}
-//			// System.out.println();
-//			lp.addConstraint(new LinearEqualsConstraint(rowConstArr[row], 1, "r" + row));
-//		}
-//
-//		if (n % 2 == 0) {
-//			rowConstArr2 = new double[n * n][n * n];
-//			for (int row = 0; row < n; row++) {
-//				for (int column = 0; column < n; column++) {
-//					// build constraint for element x_row_column
-//					int vindex = row * n + column;
-//					// initialize all coefficients to zero
-//					for (int k = 0; k < n * n; k++)
-//						rowConstArr2[vindex][k] = 0;
-//					if (row == column) {
-//						// diagonal elements have a restriction element = 0
-//						rowConstArr2[vindex][vindex] = 1;
-//					} else {
-//						// non-diagonal elements implement the restriction x_ij = x_ji.
-//						// Variable x_ij = row*n + column;
-//						// variable x_ji = column * n + row
-//						rowConstArr2[vindex][vindex] = 1;
-//						rowConstArr2[vindex][column * n + row] = -1;
-//					}
-//					lp.addConstraint(new LinearEqualsConstraint(rowConstArr2[vindex], 0, "vc" + vindex));
-//
-//				}
-//			}
-//		} else {
-//
-//			rowConstArr2 = new double[n * n - n + 1][n * n];
-//			for (int row = 0; row < n; row++) {
-//				for (int column = 0; column < n; column++) {
-//					int vindex = row * n + column;
-//					if (vindex <= (n * n - (n + 1))) {
-//						// add the last constraint, that ensures that only one diagonial element is
-//						// equal to one
-//						System.out.println(vindex);
-//						for (int k = 0; k < n * n; k++) {
-//							rowConstArr2[vindex][k] = 0;
-//						}
-//						for (int i = 0; i < n; i++) {
-//							rowConstArr2[vindex][i * n + i] = 1;
-//						}
-//
-//						lp.addConstraint(new LinearEqualsConstraint(rowConstArr2[vindex], 1, "vc" + vindex));
-//					}	
-//				}
-//			}
-//
-//		}
-//
-//		System.out.println("Row constraints");
-//		printConstraints(rowConstArr);
-//		System.out.println("Other constraints");
-//		printConstraints(rowConstArr2);
-//
-//	}
+	/**
+	 * Adds the constraints: one user per row, the constraints on the diagonal,
+	 * and the condition that x_ij=x_ji
+	 */
 	public static void rowConst(int n, LinearProgram lp) {
 
 		double[][] rowConstArr = new double[n][n * n];
@@ -390,11 +320,12 @@ public class MatchmakingAlgorithmImplementation {
 
 		for (int row = 0; row < n; row++) {
 			for (int column = n * row; column < n * row + n; column++) {
-				if (row != column)
-					rowConstArr[row][column] = 1;
-				else
-					rowConstArr[row][column] = 0;
+				//if (row != column)
+					//rowConstArr[row][column] = 1;
+				//else
+					//rowConstArr[row][column] = 0;
 				// System.out.print((int) rowConstArr[row][column] + " ");
+				rowConstArr[row][column] = 1;
 			}
 			// System.out.println();
 			lp.addConstraint(new LinearEqualsConstraint(rowConstArr[row], 1, "r" + row));
