@@ -1,13 +1,11 @@
 package io.swagger.api;
 
-import java.io.File;
+//import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Scanner;
-
 import org.apache.commons.collections4.MapIterator;
 import org.apache.commons.collections4.keyvalue.MultiKey;
 import org.apache.commons.collections4.map.LinkedMap;
@@ -24,6 +22,7 @@ import scpsolver.constraints.LinearEqualsConstraint;
 import scpsolver.lpsolver.LinearProgramSolver;
 import scpsolver.lpsolver.SolverFactory;
 import scpsolver.problems.LinearProgram;
+import java.util.concurrent.TimeUnit;
 
 public class MatchmakingAlgorithmImplementation {
 
@@ -64,6 +63,7 @@ public class MatchmakingAlgorithmImplementation {
 
 		UserPairwiseScore ups = null;
 
+		long startTime = System.nanoTime();
 		// Iterate through the UPS list
 		for (UserPairwiseScore element : list2) {
 			ups = element;
@@ -85,22 +85,20 @@ public class MatchmakingAlgorithmImplementation {
 					// If the both scores are 0 the players haven't played again
 					if (us.getScore().getColaboration() != 0 && us.getScore().getQuality() != 0) {
 
-						played_again = true;
 						/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
 						intentions = get_intentions((ArrayList<UserCollaborationIntentions>) list3,
 								ups.getGradingUser(), us.getUserId());
 						/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
 						// System.out.println("(alt)Intentions for the pair: " + intentions);
-						
+
 						/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
 						// Call the Weight for the pair function
-						weight = weight(ups, ups_2, played_again, intentions, 0, 0);
+						weight = weight(ups, ups_2, intentions, 0, 0);
 						// System.out.println("Weight for the pair: " + weight);
 						/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
 
 					} else {
 
-						played_again = false;
 						/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
 						intentions = get_intentions((ArrayList<UserCollaborationIntentions>) list3,
 								ups.getGradingUser(), us.getUserId());
@@ -116,11 +114,11 @@ public class MatchmakingAlgorithmImplementation {
 							if (us_check.getUserId().equals(ups.getGradingUser())) {
 								/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
 								// Call the Weight for the pair function
-								System.out.println("Quality" +  us_check.getScore().getQuality());
-								System.out.println("Collaboration" +  us_check.getScore().getColaboration());
-								weight = weight(ups, ups_2, played_again, intentions,
-										us_check.getScore().getColaboration(), us_check.getScore().getQuality());
-								System.out.println("Weight for the pair: " + weight);
+								// System.out.println("Quality" + us_check.getScore().getQuality());
+								// System.out.println("Collaboration" + us_check.getScore().getColaboration());
+								weight = weight(ups, ups_2, intentions, us_check.getScore().getColaboration(),
+										us_check.getScore().getQuality());
+								// System.out.println("Weight for the pair: " + weight);
 								/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
 								break;
 							}
@@ -163,33 +161,48 @@ public class MatchmakingAlgorithmImplementation {
 		 * dictionary
 		 */
 		tettt.sort(Comparator.comparing(UtilityUser::getUser_i).thenComparing(UtilityUser::getUser_j));
+
+		long endTime = System.nanoTime();
+		// get the difference between the two nano time values
+		long timeElapsed = endTime - startTime;
+		System.out
+				.println("Time required for the creation of the pairs \nto be maximized and the sorting of the lists: "
+						+ timeElapsed);
+		System.out.println(
+				"Time required for the creation of the pairs \nto be maximized and the sorting of the lists in milliseconds: "
+						+ timeElapsed / 1000000);
+
+		long timeElapsed2 = 0;
 		try {
+			startTime = System.nanoTime();
+
 			// maximization problem
 			final_pairs = maximize_lp(tettt);
+
+			endTime = System.nanoTime();
+			// get the difference between the two nano time values
+			timeElapsed2 = endTime - startTime;
+			System.out.println("Time required for the maximization problem: " + timeElapsed2);
+			System.out.println("Time required for the maximization problem in milliseconds: " + timeElapsed2 / 1000000);
+
 		} catch (Exception e) {
 			System.out.println("Something went wrong: " + e);
 		}
 
 		/////////// ~~~~~~~printing the dump text~~~~~~~///////////////
-		String user_i, user_j;
-		String weight;
-		Scanner read = new Scanner(new File("temp_file.txt"));
-		// use the "," and the "\n" as delimiters
-		read.useDelimiter(",|\\n");
-
-		while (read.hasNext()) {
-			user_i = read.next().trim();
-			user_j = read.next().trim();
-			weight = read.next().trim();
-			// x = read.next().trim();
-			// dSystem.out.print(user_i + " " + user_j + " " + weight + "\n");
-		}
-		read.close();
+		/*
+		 * String user_i, user_j; String weight; Scanner read = new Scanner(new
+		 * File("temp_file.txt")); // use the "," and the "\n" as delimiters
+		 * read.useDelimiter(",|\\n");
+		 * 
+		 * while (read.hasNext()) { user_i = read.next().trim(); user_j =
+		 * read.next().trim(); weight = read.next().trim(); // x = read.next().trim();
+		 * // dSystem.out.print(user_i + " " + user_j + " " + weight + "\n"); }
+		 * read.close();
+		 */
 		/////////// ~~~~~~~~~~~~~~~~~~~~~~~///////////////
-
-//		while (final_pairs.size() != users_count / 2)
-//			final_pairs.remove(final_pairs.size() - 1);
-
+		System.out.println("Total time required: " + (timeElapsed2 + timeElapsed));
+		System.out.println("Total time required in milliseconds: " + (timeElapsed2 + timeElapsed) / 1000000);
 		return final_pairs;
 	}
 
@@ -242,6 +255,7 @@ public class MatchmakingAlgorithmImplementation {
 //		System.out.println(s);
 
 		LinearProgramSolver solver = SolverFactory.newDefault();
+
 		double[] solution = solver.solve(uglobal);
 		System.out.print(uglobal.convertToCPLEX());
 		System.out.println("\nThe calculations ended . . .\n");
@@ -296,51 +310,88 @@ public class MatchmakingAlgorithmImplementation {
 	}
 
 	/**
-	 * Adds the "one user per row" constraints to the linear program, ie. the sum
-	 * from j=1 to n of x_i,j = 1 for all i=1,...,n.
+	 * Adds the constraints: one user per row, the constraints on the diagonal,
+	 * and the condition that x_ij=x_ji
 	 */
 	public static void rowConst(int n, LinearProgram lp) {
 
 		double[][] rowConstArr = new double[n][n * n];
+		double[][] rowConstArr2;
 
 		for (int row = 0; row < n; row++) {
 			for (int column = n * row; column < n * row + n; column++) {
-				if (row != column)
-					rowConstArr[row][column] = 1;
-				else
-					rowConstArr[row][column] = 0;
+				//if (row != column)
+					//rowConstArr[row][column] = 1;
+				//else
+					//rowConstArr[row][column] = 0;
 				// System.out.print((int) rowConstArr[row][column] + " ");
+				rowConstArr[row][column] = 1;
 			}
 			// System.out.println();
 			lp.addConstraint(new LinearEqualsConstraint(rowConstArr[row], 1, "r" + row));
 		}
 
-		double[][] rowConstArr2 = new double[n * n][n * n];
-		for (int row = 0; row < n; row++) {
-			for (int column = 0; column < n; column++) {
-				// build constraint for element x_row_column
-				int vindex = row * n + column;
-				// initialize all coefficients to zero
-				for (int k = 0; k < n * n; k++)
-					rowConstArr2[vindex][k] = 0;
-				if (row == column) {
-					// diagonal elements have a restriction element = 1 if n= even or element=0 if
-					// n= odd
-					if (n % 2 == 0)
+		if (n % 2 == 0) {
+			rowConstArr2 = new double[n * n][n * n];
+			for (int row = 0; row < n; row++) {
+				for (int column = 0; column < n; column++) {
+					// build constraint for element x_row_column
+					int vindex = row * n + column;
+					// initialize all coefficients to zero
+					for (int k = 0; k < n * n; k++)
+						rowConstArr2[vindex][k] = 0;
+					if (row == column) {
+						// diagonal elements have a restriction element = 0
 						rowConstArr2[vindex][vindex] = 1;
-					else
-						rowConstArr2[vindex][vindex] = 0;
-				} else {
-					// non-diagonal elements implement the restriction x_ij = x_ji.
-					// Variable x_ij = row*n + column;
-					// variable x_ji = column * n + row
-					rowConstArr2[vindex][vindex] = 1;
-					rowConstArr2[vindex][column * n + row] = -1;
+					} else {
+						// non-diagonal elements implement the restriction x_ij = x_ji.
+						// Variable x_ij = row*n + column;
+						// variable x_ji = column * n + row
+						rowConstArr2[vindex][vindex] = 1;
+						rowConstArr2[vindex][column * n + row] = -1;
+					}
+					lp.addConstraint(new LinearEqualsConstraint(rowConstArr2[vindex], 0, "vIc" + vindex));
+
+				}
+			}
+		} else {
+			rowConstArr2 = new double[n * n - n + 1][n * n];
+
+			int vindex = 0;
+
+			for (int row = 0; row < n; row++) {
+				for (int column = 0; column < n; column++) {
+					System.out.println(vindex);
+					if (vindex == n * n - n)
+						break;
+					// build constraint for element x_row_column
+					// initialize all coefficients to zero
+					for (int k = 0; k < n * n; k++)
+						rowConstArr2[vindex][k] = 0;
+					if (row != column) {
+						// non-diagonal elements implement the restriction x_ij = x_ji.
+						// Variable x_ij = row*n + column;
+						// variable x_ji = column * n + row
+						rowConstArr2[vindex][vindex] = 1;
+						rowConstArr2[vindex][column * n + row] = -1;
+
+					}
+					lp.addConstraint(new LinearEqualsConstraint(rowConstArr2[vindex], 0, "vOc" + vindex));
+					vindex++;
 				}
 
-				lp.addConstraint(new LinearEqualsConstraint(rowConstArr2[vindex], 0, "vc" + vindex));
-
 			}
+
+			// add the last constraint, that ensures that only one diagonial element is
+			// equal to one
+//			if (vindex == (n * n - n + 1)) {
+			for (int k = 0; k < n * n; k++)
+				rowConstArr2[vindex][k] = 0;
+			for (int i = 0; i < n; i++)
+				rowConstArr2[vindex][i * n + i] = 1;
+			lp.addConstraint(new LinearEqualsConstraint(rowConstArr2[vindex], 1, "vAc" + vindex));
+//			}
+
 		}
 
 //		System.out.println("Row constraints");
@@ -357,10 +408,11 @@ public class MatchmakingAlgorithmImplementation {
 			}
 			System.out.println();
 		}
+		System.out.println();
 	}
 
-	private float weight(UserPairwiseScore ups_i, UserPairwiseScore ups_j, boolean played_again, String intentions,
-			float user_quality, float user_collaboration) {
+	private float weight(UserPairwiseScore ups_i, UserPairwiseScore ups_j, String intentions, float user_quality,
+			float user_collaboration) {
 
 		float weight = 0;
 		UserScore us = new UserScore();
@@ -380,25 +432,25 @@ public class MatchmakingAlgorithmImplementation {
 		 * weight = 1; } else if (played_again == false && intentions ==
 		 * IntentionEnum.IDC.toString()) { weight = 0; }
 		 */
-		if (played_again && intentions == IntentionEnum.WANT.toString()) {
+		if ((user_quality == 0 && user_collaboration == 0) && intentions == IntentionEnum.WANT.toString()) {
 //			System.out.println("~1~");
 			weight = 1 + (((us.getScore().getColaboration() + us_2.getScore().getColaboration()) / 2
 					+ (us.getScore().getQuality() + us_2.getScore().getQuality()) / 2) / 10);
-		} else if (played_again && intentions == IntentionEnum.DWANT.toString()) {
+		} else if ((user_quality == 0 && user_collaboration == 0) && intentions == IntentionEnum.DWANT.toString()) {
 //			System.out.println("~2~");
 			weight = -2 + (((us.getScore().getColaboration() + us_2.getScore().getColaboration()) / 2
 					+ (us.getScore().getQuality() + us_2.getScore().getQuality()) / 2) / 10);
-		} else if (played_again && intentions == IntentionEnum.IDC.toString()) {
+		} else if ((user_quality == 0 && user_collaboration == 0) && intentions == IntentionEnum.IDC.toString()) {
 //			System.out.println("~3~");
 			weight = (float) (-0.5 + ((us.getScore().getColaboration() + us_2.getScore().getColaboration()) / 2
 					+ (us.getScore().getQuality() + us_2.getScore().getQuality()) / 2) / 10);
-		} else if (!played_again && intentions == IntentionEnum.WANT.toString()) {
+		} else if (!(user_quality == 0 && user_collaboration == 0) && intentions == IntentionEnum.WANT.toString()) {
 //			System.out.println("~4~");
 			weight = 1 + ((user_collaboration + user_quality) / 10);
-		} else if (!played_again && intentions == IntentionEnum.DWANT.toString()) {
+		} else if (!(user_quality == 0 && user_collaboration == 0) && intentions == IntentionEnum.DWANT.toString()) {
 //			System.out.println("~5~");
 			weight = -2 + ((user_collaboration + user_quality) / 10);
-		} else if (!played_again && intentions == IntentionEnum.IDC.toString()) {
+		} else if (!(user_quality == 0 && user_collaboration == 0) && intentions == IntentionEnum.IDC.toString()) {
 //			System.out.println("~6~");
 			weight = (float) (-0.5 + ((user_collaboration + user_quality) / 10));
 		}
@@ -519,7 +571,6 @@ public class MatchmakingAlgorithmImplementation {
 				// check if uu.getWeight() !=0 x_ji=1 else 0
 				x_ji = uu_j.getWeight() != 0 ? 1 : 0;
 
-//				 System.out.println("~~~~~~~~~~~~~~~~~~~");
 //				 System.out.println("x_ij: " + x_ij + "\n" + "x_ji: " + x_ji);
 //				 System.out
 //					 .println("uu.getWeight(): " + uu.getWeight() + "\n" + "uu_j.getWeight(): " +
@@ -530,12 +581,11 @@ public class MatchmakingAlgorithmImplementation {
 					// The output form of the users with comma "," as a delimiter
 					// test1,test2,1.690000057220459
 					// test2,test1,0.2800000309944153
-					writer.append(uu.getUser_i());
-					writer.append(",");
-					writer.append(uu.getUser_j());
-					writer.append(",");
-					writer.append(Double.toString(uu.getWeight()));
-					writer.append(",");
+					/*
+					 * writer.append(uu.getUser_i()); writer.append(",");
+					 * writer.append(uu.getUser_j()); writer.append(",");
+					 * writer.append(Double.toString(uu.getWeight())); writer.append(",");
+					 */
 
 					tmp.setUser_i(uu.getUser_i());
 					tmp.setUser_j(uu.getUser_j());
@@ -553,8 +603,8 @@ public class MatchmakingAlgorithmImplementation {
 
 		}
 
-		writer.flush();
-		writer.close();
+		// writer.flush();
+		// writer.close();
 		return utility_user;
 	}
 
