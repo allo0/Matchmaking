@@ -1,0 +1,130 @@
+openapi: '3.0.0'
+info:
+  description: Matchmaking
+  version: "1.1.0"
+  title: "Swagger matchmaker"
+  termsOfService: "http://swagger.io/terms/"
+  contact:
+    email: "ias.topalidis@gmail.com"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+
+
+tags:
+- name: "matchmaking"
+  description: "Match pairs of users"
+
+
+
+paths:
+  /matchmaking:
+    post:
+      tags:
+      - "matchmaking"
+
+      summary: "Compute the pairs for the next game round"
+      description: ""
+      requestBody:
+        description: The body is a JSON structure having the following parts (a) global user score (b) pairwise user scores and (c) user-to-user collaboration intentions. The output of the computation is a user pair assignment matrix.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userGlobalScores:
+                    $ref: '#/components/schemas/UserScore'
+                userPairwiseScore:
+                    $ref: '#/components/schemas/UserPairwiseScore'
+                userCollaborationIntentions:
+                    $ref: '#/components/schemas/UserCollaborationIntentions'
+
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserPairAssignment'
+        405:
+          description: "Invalid input"
+
+components:
+  schemas:
+    UserScore:
+      type: object
+      properties:
+        userId:
+          type: string
+        score:
+          $ref: '#/components/schemas/Score'
+      example:
+        - {"userId": "user1", "score": {"quality": 3.8, "collaboration": 4.0}}
+        - {"userId": "user2", "score": {"quality": 4.9, "collaboration": 2.0}}
+
+    UserPairwiseScore:
+      type: object
+      properties:
+        gradingUser:
+          type: string
+        scoresGiven:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserScore'
+      example:
+        - {"gradingUser": "user1", "scoresGiven": [{"userId": "user2", "score": {"quality": 3.8, "collaboration": 4}}]}
+        - {"gradingUser": "user2", "scoresGiven": [{"userId": "user1", "score": {"quality": 4.9, "collaboration": 2.0}}]}
+
+
+    UserCollaborationIntentions:
+      type: object
+      properties:
+        gradingUser:
+          type: string
+        intentions:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserCollaborationSpec'
+      example:
+        - {"gradingUser": "user1", "intentions": [{"userId": "user2", "intention": "idc"}]}
+        - {"gradingUser": "user2", "intentions": [{"userId": "user1", "intention": "want"}]}
+
+    UserCollaborationSpec:
+      type: object
+      properties:
+        userId:
+          type: string
+        intention:
+          type: string
+          enum:
+            - want
+            - dwant
+            - idc       
+      example:
+        - {"userId": "user1", "intention": "want"} #  the expressing user states that s/he wants to collaborate with user1
+        - {"userId": "user2", "intention": "idc"} # the expressing user states that s/he neither wants, nor opposes to collaborate with user2
+
+    UserPairAssignment:
+      title: User pair assignments
+      type: object
+      properties:
+        user1:
+          type: string
+        user2:
+          type: string
+      example:
+        - {"user1": "user1", "user2": "user2"}
+
+
+    Score:
+      type: object
+      properties:
+        quality:
+          type: number
+          format: float
+        colaboration:
+          type: number
+          format: float
