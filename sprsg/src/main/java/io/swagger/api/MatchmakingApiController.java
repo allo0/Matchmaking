@@ -41,25 +41,7 @@ public class MatchmakingApiController implements MatchmakingApi {
 		if (accept != null && accept.contains("application/json")) {
 			ArrayList<UserPairAssignment> result = new ArrayList<UserPairAssignment>();
 
-			/* ------------------------------------------ */
 
-			ArrayList<UserScore> scores_given = new ArrayList<UserScore>();
-			for (UserScore us : body.getUserGlobalScores())
-				scores_given.add(us);
-
-			/* ------------------------------------------ */
-
-			ArrayList<UserPairwiseScore> pairwise_score = new ArrayList<UserPairwiseScore>();
-			for (UserPairwiseScore ups : body.getUserPairwiseScore())
-				pairwise_score.add(ups);
-
-			/* ------------------------------------------ */
-
-			ArrayList<UserCollaborationIntentions> collaboration_intentions = new ArrayList<UserCollaborationIntentions>();
-			for (UserCollaborationIntentions uci : body.getUserCollaborationIntentions())
-				collaboration_intentions.add(uci);
-
-			/* ------------------------------------------ */
 
 			MatchmakingAlgorithmImplementation ma = new MatchmakingAlgorithmImplementation();
 
