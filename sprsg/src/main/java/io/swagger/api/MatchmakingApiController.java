@@ -53,8 +53,10 @@ public class MatchmakingApiController implements MatchmakingApi {
 				String user2;
 				System.out.println("The final pairs: ");
 				for (int i = 0; i < result.size(); i++) {
-					user1 = result.get(i).getUser1();
-					user2 = result.get(i).getUser2();
+					 user1 = result.get(i).getUser1();
+					 user2 = result.get(i).getUser2();
+//					user1 = "result.get(i).getUser1()";
+//					user2 = "result.get(i).getUser2()";
 					System.out.println(user1 + " " + user2);
 				}
 				

@@ -8,7 +8,7 @@
 	<name>swagger-spring</name>
 	<version>1.0.0</version>
 	<properties>
-		<java.version>1.7</java.version>
+		<java.version>8</java.version>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 		<springfox-version>2.9.2</springfox-version>
@@ -25,6 +25,9 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<includeSystemScope>true</includeSystemScope>
+				</configuration>
 				<executions>
 					<execution>
 						<goals>
@@ -39,16 +42,45 @@
 				<configuration>
 					<source>8</source>
 					<target>8</target>
+
 				</configuration>
 			</plugin>
 		</plugins>
+
+
+
 	</build>
 
-	<repositories>
+    <!-- <repositories>
+        <repository>
+            <id>cogcomp</id>
+            <url>https://cogcomp.seas.upenn.edu/m2repo/</url>
+        </repository>     
+        <repository>
+            <id>jena-bio</id>
+            <url>https://bio.informatik.uni-jena.de/repository/libs-release-oss/</url>
+        </repository>   
+    </repositories> -->
 
-	</repositories>
 
 	<dependencies>
+		
+		<dependency>
+			<groupId>scpsolver</groupId>
+			<artifactId>scpsolver</artifactId>
+			<version>5.2</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/SCPSolver.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>lpsolverpack</groupId>
+			<artifactId>lpsolver</artifactId>
+			<version>5.2</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/LPSOLVESolverPack.jar</systemPath>
+		</dependency>
+
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
@@ -98,11 +130,28 @@
 			<version>2.2.5</version>
 		</dependency>
 
+        <!-- https://mvnrepository.com/artifact/com.gurobi/gurobi-jar -->
+        <!-- <dependency>
+            <groupId>com.gurobi</groupId>
+            <artifactId>gurobi-jar</artifactId>
+            <version>9.1.1</version>
+        </dependency> -->
+
+        <!-- https://mvnrepository.com/artifact/com.gurobi/gurobi -->
+        <!-- <dependency>
+            <groupId>com.gurobi</groupId>
+            <artifactId>gurobi</artifactId>
+            <version>7.0.1</version>
+        </dependency> -->
+
+
+
+        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-collections4 -->
 		<dependency>
-    		<groupId>me.tongfei</groupId>
-      		<artifactId>progressbar</artifactId>
-      		<version>0.9.2</version>
-  		</dependency>
+		    <groupId>org.apache.commons</groupId>
+		    <artifactId>commons-collections4</artifactId>
+		    <version>4.4</version>
+		</dependency>
 		
 		<dependency>
 		    <groupId>org.apache.commons</groupId>
