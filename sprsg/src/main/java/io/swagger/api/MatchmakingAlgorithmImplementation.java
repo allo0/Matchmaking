@@ -143,38 +143,9 @@ public class MatchmakingAlgorithmImplementation {
 			}
 
 		}
-//		for(int i=0;i<utility_per_user.size();i++) {
-//			System.out.println(">>>> "+utility_per_user.get(i).getUser_i()+" "+utility_per_user.get(i).getUser_j()+" "+utility_per_user.get(i).getWeight());
-//		}
-		/*
-		 * call utility per user, to get the utility of each player with all others he
-		 * has played with
-		 */
-//		global_utility = utility_per_user_calculator(utility_per_user);
-//		for(int i=0;i<global_utility.size();i++) {
-//			System.out.println("|||| "+global_utility.get(i).getUser_i()+" "+global_utility.get(i).getUser_j()+" "+global_utility.get(i).getWeight());
-//		
-//		}
 
-		/*
-		 * Sort the arraylist on 2 levels, first by the user_i and then by the user_j
-		 */
-//		global_utility.sort(Comparator.comparing(UtilityUser::getUser_i).thenComparing(UtilityUser::getUser_j));
-
-		/////////// ~~~~~global utility function~~~~~~///////////////
-
-//		tettt = global_utilityFunc2(global_utility);
-//		tettt = global_utilityFunc2(utility_per_user);
-//		for(int i=0;i<tettt.size();i++) {
-//			System.out.println("---- "+tettt.get(i).getUser_i()+" "+tettt.get(i).getUser_j()+" "+tettt.get(i).getWeight());
-//		
-//		}
-		/*
-		 * Sort the arraylist a second time. So it can be in the same order as the
-		 * dictionary
-		 */
-//		tettt.sort(Comparator.comparing(UtilityUser::getUser_i).thenComparing(UtilityUser::getUser_j));
-
+		utility_per_user.sort(Comparator.comparing(UtilityUser::getUser_i).thenComparing(UtilityUser::getUser_j));
+		
 		long endTime = System.nanoTime();
 		// get the difference between the two nano time values
 		long timeElapsed = endTime - startTime;
@@ -464,116 +435,7 @@ public class MatchmakingAlgorithmImplementation {
 
 	}
 
-	private ArrayList<UtilityUser> utility_per_user_calculator(ArrayList<UtilityUser> utility_per_user) {
 
-		ArrayList<UtilityUser> utility_user = new ArrayList<>();
 
-		UtilityUser uu = new UtilityUser();
-		UtilityUser uu_j = new UtilityUser();
-
-		// Iterate through the List with the other players, a player has played
-		// and store the user in our utility object
-		for (int c = 0; c < utility_per_user.size(); c++) {
-
-			uu.setUser_i(utility_per_user.get(c).getUser_i());
-			uu.setUser_j(utility_per_user.get(c).getUser_j());
-			uu.setWeight(utility_per_user.get(c).getWeight());
-
-			// Iterate through the List with the other players, a player has played
-			// to get the nested user
-			for (int d = 0; d < utility_per_user.size(); d++) {
-
-				UtilityUser tmp = new UtilityUser();
-				uu_j = utility_per_user.get(d);
-
-				// if the pair (nested outter ) matches
-				// add the new pair ij to the arraylist
-				if (uu.getUser_i().equals(uu_j.getUser_j()) && uu.getUser_j().equals(uu_j.getUser_i())) {
-
-					tmp.setWeight(uu.getWeight());
-					tmp.setUser_i(uu.getUser_i());
-					tmp.setUser_j(uu_j.getUser_i());
-
-//					System.out.printf("%d %d\n", c, d);
-//					System.out.printf("%d) Utility Per User Func: \n", c);
-//					System.out.println(" User i: " + tmp.getUser_i());
-//					System.out.println(" User j: " + tmp.getUser_j());
-//					System.out.println(" Weight: " + tmp.getWeight());
-
-					utility_user.add(tmp);
-
-					break;
-				}
-
-			}
-
-		}
-
-		return utility_user;
-	}
-
-	private ArrayList<UtilityUser> global_utilityFunc2(ArrayList<UtilityUser> global_utility) throws IOException {
-
-		ArrayList<UtilityUser> utility_user = new ArrayList<>();
-
-		int x_ij = 0;
-		int x_ji = 0;
-		UtilityUser uu = new UtilityUser();
-		UtilityUser uu_j = new UtilityUser();
-
-		// Create the writer for the user dump
-		FileWriter writer = new FileWriter("temp_file.txt", false);
-
-		for (int e = 0; e < global_utility.size(); e++) {
-			uu = global_utility.get(e);
-
-			UtilityUser tmp = new UtilityUser();
-
-			// check if uu.getWeight() !=0 x_ij=1 else 0
-			x_ij = uu.getWeight() != 0 ? 1 : 0;
-
-			for (int q = 0; q < global_utility.size(); q++) {
-
-				uu_j = global_utility.get(q);
-
-				// check if uu.getWeight() !=0 x_ji=1 else 0
-				x_ji = uu_j.getWeight() != 0 ? 1 : 0;
-
-//				 System.out.println("x_ij: " + x_ij + "\n" + "x_ji: " + x_ji);
-//				 System.out
-//					 .println("uu.getWeight(): " + uu.getWeight() + "\n" + "uu_j.getWeight(): " +
-//					 uu_j.getWeight());
-
-				if (x_ij == x_ji) {
-
-					// The output form of the users with comma "," as a delimiter
-					// test1,test2,1.690000057220459
-					// test2,test1,0.2800000309944153
-					/*
-					 * writer.append(uu.getUser_i()); writer.append(",");
-					 * writer.append(uu.getUser_j()); writer.append(",");
-					 * writer.append(Double.toString(uu.getWeight())); writer.append(",");
-					 */
-
-					tmp.setUser_i(uu.getUser_i());
-					tmp.setUser_j(uu.getUser_j());
-					tmp.setWeight(uu.getWeight());
-
-					utility_user.add(tmp);
-
-					break;
-
-				} else
-
-					continue;
-
-			}
-
-		}
-
-		// writer.flush();
-		// writer.close();
-		return utility_user;
-	}
 
 }
