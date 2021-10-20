@@ -79,6 +79,14 @@
 			<scope>system</scope>
 			<systemPath>${project.basedir}/lib/LPSOLVESolverPack.jar</systemPath>
 		</dependency>
+		<dependency>
+			<groupId>glpk</groupId>
+			<artifactId>glpk</artifactId>
+			<version>4.65</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/GLPKSolverPack.jar</systemPath>
+		</dependency>
+
 
 
 		<dependency>
